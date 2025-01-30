@@ -29,8 +29,13 @@ class Controladores extends AbstractController
         return new Response();
     }   
     
-    // #[Route('/logout', name:'logout')]
-    // public function logout(){    
-    //     return new Response();
-    // }
+    #[Route('/registrarse', name:'registrarse')]
+    public function registrarse(){    
+        return new Response();
+    }
+
+    #[Route('/recuperarContraseña', name:'recuperarContraseña')]
+    public function recuperarContraseña(){    
+        return new Response();
+    }
 }

@@ -5,13 +5,14 @@
         <title>Slyce</title>
     </head>
     <body>	
-    	<form action="{{ path('ctr_login') }}" method="post">
+    	<form action="{{ path('login') }}" method="post">
 			Usuario
 			<input type="text" id="username" name="_username" />
 			Clave
 			<input type="password" id="password" name="_password" />
-            <a>¿No tienes cuenta? <a href="{{ path('registro') }}">Regístrate</a></a>
-            <a>¿Has olvidado la contraseña? <a href="{{ path('recuperar') }}">Recupérala</a></a>
+            <p>¿No tienes cuenta? <a href="{{ path('registrarse') }}">Regístrate</a></p>
+            <p>¿Has olvidado la contraseña? <a href="{{ path('recuperarContraseña') }}">Recupérala</a></p>  
+            <br>
 			<button type="submit">login</button>
 		</form>
     </body>

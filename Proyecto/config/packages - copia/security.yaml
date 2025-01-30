@@ -9,7 +9,7 @@ security:
     # Hasheo de las claves de los usuarios
     password_hashers:
         App\Entity\Medico:
-                algorithm: plaintext
+                algorithm: bcrypt 
     
     # Firewalls (hay 2, si te fijas)
     firewalls:

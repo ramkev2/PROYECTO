@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Slyce</title>
+    </head>
+    <body>	
+    	<form action="{{ path('login') }}" method="post">
+			Usuario
+			<input type="text" id="username" name="_username" />
+			Clave
+			<input type="password" id="password" name="_password" />
+            <a>¿No tienes cuenta? <a href="{{ path('registro') }}">Regístrate</a></a>
+            <a>¿Has olvidado la contraseña? <a href="{{ path('recuperar') }}">Recupérala</a></a>
+			<button type="submit">login</button>
+		</form>
+    </body>
+</html>

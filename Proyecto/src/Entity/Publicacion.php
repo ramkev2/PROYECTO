@@ -13,11 +13,17 @@ class Publicacion{
     #[ORM\GeneratedValue]
     private $id;
    
-    #[ORM\Column(type:'integer', name:'fecha_publicacion')] //cambiar a date 
+    #[ORM\Column(type:'datetime', name:'fecha_publicacion')] //*
     private $fecha_publicacion;
 
 	#[ORM\Column(type:'integer', name:'likes')]
 	private $likes;
+
+    #[ORM\Column(type:'string', name:'contenido')]
+	private $contenido;
+
+    #[ORM\Column(type:'integer', name:'usuario_id')]
+	private $usuario_id;
 
 	
 	public function getId()
@@ -29,21 +35,37 @@ class Publicacion{
     {
         return $this->fecha_publicacion;
     }
-
     public function setFecha_publicacion($fecha_publicacion)
     {
         $this->fecha_publicacion = $fecha_publicacion;
     }
+    
 	public function getLikes()
     {
         return $this->likes;
     }
-
     public function setLikes($likes)
     {
         $this->likes = $likes;
     }
-	
+
+	public function getContenido()
+    {
+        return $this->contenido;
+    }
+    public function setContenido($contenido)
+    {
+        $this->contenido = $contenido;
+    }
+
+    public function getUsuario_id()
+    {
+        return $this->contenido;
+    }
+    public function setUsuario_id($usuario_id)
+    {
+        $this->usuario_id = $usuario_id;
+    }
 }
 
 

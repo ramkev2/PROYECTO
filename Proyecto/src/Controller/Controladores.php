@@ -29,6 +29,7 @@ class Controladores extends AbstractController
         return new Response();
     }   
     
+<<<<<<< Updated upstream
     #[Route('/registrarse', name:'registrarse')]
     public function registrarse(){    
         return new Response();
@@ -36,6 +37,10 @@ class Controladores extends AbstractController
 
     #[Route('/recuperarContraseña', name:'recuperarContraseña')]
     public function recuperarContraseña(){    
+=======
+    #[Route('/logout', name:'logout')]
+    public function logout(){    
+>>>>>>> Stashed changes
         return new Response();
     }
 }

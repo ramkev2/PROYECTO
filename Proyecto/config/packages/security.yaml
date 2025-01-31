@@ -8,8 +8,8 @@ security:
     
     # Hasheo de las claves de los usuarios
     password_hashers:
-        App\Entity\Medico:
-                algorithm: bcrypt 
+        App\Entity\Usuario:
+            algorithm: bcrypt 
     
     # Firewalls (hay 2, si te fijas)
     firewalls:
@@ -18,7 +18,7 @@ security:
             security: false
         main:                               # ===== Firewall principal =====
             lazy: true                      # Todas las páginas se pueden ver estando autorizado (o no)
-            provider: app_user_provider     # Los usuarios salen del proveedor declarado arriba con la entidad Medico
+            provider: app_user_provider     # Los usuarios salen del proveedor declarado arriba con la entidad Usuario
             form_login:
                 login_path: login       # Ruta al controlador de login
                 check_path: login       # Ruta a la que se envían el POST del formulario de login
@@ -28,5 +28,6 @@ security:
                 target: login           # Si se le desloguea bien, a dónde se le manda
 
     access_control:                         # Qué páginas se protegen y cuáles no: esta tarea se la delegamos a los controladores
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/inicio, roles: ROLE_USER }  # Solo usuarios autenticados pueden entrar
+        - { path: ^/admin, roles: ROLE_ADMIN }  # Solo admins pueden entrar al área de admin
+        - { path: ^/login, roles: PUBLIC_ACCESS }  # Ruta pública para login

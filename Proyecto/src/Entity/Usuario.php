@@ -25,7 +25,7 @@ class Usuario
     #[ORM\Column(type: 'string', name: 'email')]
     private string $email;
 
-    #[ORM\Column(type: 'string', name: 'contra')]
+    #[ORM\Column(type: 'string', name: 'clave')]
     private string $clave;
 
     #[ORM\Column(type: 'integer', name: 'edad')]

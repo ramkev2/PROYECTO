@@ -7,12 +7,16 @@
     <body>	
     	<form action="{{ path('login') }}" method="post">
 			Usuario
-			<input type="text" id="username" name="_username" />
+			<input type="text" id="username" name="username" />
+             <br>
 			Clave
-			<input type="password" id="password" name="_password" />
+           
+			<input type="password" id="password" name="password" />
+       
             <p>¿No tienes cuenta? <a href="{{ path('registrarse') }}">Regístrate</a></p>
+            
             <p>¿Has olvidado la contraseña? <a href="{{ path('recuperarContraseña') }}">Recupérala</a></p>  
-            <br>
+          
 			<button type="submit">login</button>
 		</form>
     </body>

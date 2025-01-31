@@ -3,10 +3,11 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity]
 #[ORM\Table(name: 'usuario')]
-class Usuario
+class Usuario implements UserInterface , PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer', name: 'usuId')]
@@ -25,12 +26,30 @@ class Usuario
     #[ORM\Column(type: 'string', name: 'email')]
     private string $email;
 
+
     #[ORM\Column(type: 'string', name: 'clave')]
     private string $clave;
 
+
     #[ORM\Column(type: 'integer', name: 'edad')]
     private int $edad;
+    #[ORM\Column(type:'integer', name:'rol')]
+    private $rol;
+
+    public function getRol(){
+        return $this->rol;
+    }
+
+    public function setRol($rol){
+        $this->rol = $rol;
+    }
+    public function getRoles(): array
+    {
+		return ['ROLE_USER'];            
+	}
+
     public function getId(): int
+    
     {
         return $this->id;
     }
@@ -75,14 +94,15 @@ class Usuario
         $this->email = $email;
     }
 
-    public function getClave()
+    public function getPassword(): ?string
+   
     {
-        return $this->clave;
+        return $this->password;
     }
 
-    public function setClave(string $clave)
+    public function setClave(string $password)
     {
-        $this->clave = $clave;
+        $this->password = $password;
     }
 
     public function getEdad()
@@ -93,5 +113,19 @@ class Usuario
     public function setEdad(int $edad)
     {
         $this->edad = $edad;
+    }
+    public function getUserIdentifier(): string
+    {
+        return $this->getEmail();
+    }
+
+    public function getSalt(): ?string
+    {
+        return null;
+    }
+	
+    public function eraseCredentials(): void
+    {
+
     }
 }

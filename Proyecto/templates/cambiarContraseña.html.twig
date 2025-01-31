@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Cambiar contraseña</title>
+    </head>
+    <body>	
+        <h1>CAMBIAR CONTRASEÑA</h1>
+    	<form action="{{ path('cambioContraseña') }}" method="post">
+			<input type="password" id="nuevaContra" name="nuevaContra" placeholder="Nueva Contraseña" required/><br><br>
+            <button type="submit">Actualizar Contraseña</button>
+		</form>
+    </body>
+</html>

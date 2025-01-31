@@ -20,12 +20,12 @@ security:
             lazy: true                      # Todas las páginas se pueden ver estando autorizado (o no)
             provider: app_user_provider     # Los usuarios salen del proveedor declarado arriba con la entidad Medico
             form_login:
-                login_path: app_login       # Ruta al controlador de login
-                check_path: app_login       # Ruta a la que se envían el POST del formulario de login
+                login_path: login       # Ruta al controlador de login
+                check_path: login       # Ruta a la que se envían el POST del formulario de login
                 default_target_path: portal_clinico # Si hay autenticación correcta, el controlador a dónde se manda al usuario
             logout:
                 path: /logout               # Ruta inventada (y declarada aquí) para hacer el logout
-                target: app_login           # Si se le desloguea bien, a dónde se le manda
+                target: login           # Si se le desloguea bien, a dónde se le manda
 
     access_control:                         # Qué páginas se protegen y cuáles no: esta tarea se la delegamos a los controladores
         # - { path: ^/admin, roles: ROLE_ADMIN }

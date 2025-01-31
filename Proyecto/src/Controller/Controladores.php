@@ -58,9 +58,53 @@ class Controladores extends AbstractController
     }   
     
 
+<<<<<<< HEAD
    
+=======
+    #[Route('/registrarse', name:'registrarse')]
+    public function registrarse(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response{    
+        
+        if ($request->isMethod('POST')) {
+            $nombre = $request->request->get('nombre');
+            $apellido = $request->request->get('apellido');
+            $email = $request->request->get('email');
+            $usuario = $request->request->get('usuario');
+            $clave = $request->request->get('clave');
+            $edad = (int)$request->request->get('edad');
+
+            if (!$nombre || !$apellido || !$email || !$usuario || !$clave || !$edad) {
+                $this->addFlash('error', 'Todos los campos son obligatorios.');
+                return $this->redirectToRoute('registrarse');
+            }
+
+            $usuarioExistente = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $email]);
+            if ($usuarioExistente) {
+                $this->addFlash('error', 'El email ya está registrado.');
+                return $this->redirectToRoute('registrarse');
+            }
+
+            $nuevoUsuario = new Usuario();
+            $nuevoUsuario->setNombre($nombre);
+            $nuevoUsuario->setApellido($apellido);
+            $nuevoUsuario->setEmail($email);
+            $nuevoUsuario->setUsuario($usuario);
+            $nuevoUsuario->setEdad($edad);
+
+            $hashedPassword = $passwordHasher->hashPassword($nuevoUsuario, $clave);
+            $nuevoUsuario->setClave($hashedPassword);
+
+            $entityManager->persist($nuevoUsuario);
+            $entityManager->flush();
+    
+            $this->addFlash('success', 'Usuario registrado con exito.');
+            return $this->redirectToRoute('login');
+        }
+        return $this->render('registrarse.html.twig');
+    }
+
+>>>>>>> d40ac61c2aa05c8fbc469006b9a0538587bdc820
     #[Route('/recuperarContraseña', name:'recuperarContraseña')]
-    public function recuperarContraseña(){    
+    public function recuperarContraseña(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response{    
         return new Response();
     }
     

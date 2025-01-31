@@ -58,9 +58,7 @@ class Controladores extends AbstractController
     }   
     
 
-<<<<<<< HEAD
    
-=======
     #[Route('/registrarse', name:'registrarse')]
     public function registrarse(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response{    
         
@@ -102,7 +100,6 @@ class Controladores extends AbstractController
         return $this->render('registrarse.html.twig');
     }
 
->>>>>>> d40ac61c2aa05c8fbc469006b9a0538587bdc820
     #[Route('/recuperarContraseña', name:'recuperarContraseña')]
     public function recuperarContraseña(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response{    
         return new Response();

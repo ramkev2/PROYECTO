@@ -1,7 +1,7 @@
-Usuario: {{ app.user.correo }}
-<a href="{{ path('categorias') }}">Home</a>
-<a href="{{ path('carrito') }}">Carrito</a>
-<a href="{{ path('ctrl_logout') }}">Cerrar sesión</a>
+Usuario: {{ app.user.usuario }}
+<a href="{{ path('inicio') }}">Home</a>
+<a href="{{ path('amistades') }}">Amigos</a>
+<a href="{{ path('logout') }}">Cerrar sesión</a>
 {% if app.user and app.user.rol == 1 %}
     <a href="{{ path('nuevaCat') }}">Nueva categoría</a>
     <a href="{{ path('nuevoProd') }}">Nuevo Producto</a>

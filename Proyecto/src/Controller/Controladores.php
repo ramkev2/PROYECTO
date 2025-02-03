@@ -24,39 +24,28 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class Controladores extends AbstractController
 {
 	#[Route('/login', name:'login')]
-    public function login(){    
-        return $this->render('login.html.twig');
-    } 
-    #[Route('/ctr_login', name:'ctr_login')]
-    public function ctr_login(  Request $request, 
-    EntityManagerInterface $entityManager, 
-    UserPasswordHasherInterface $passwordHasher,)
-    {
-        $correo = $request->request->get('username');
-        $clave = $request->request->get('password');
-
-        // Verificar si los datos están presentes
-        if (!$correo || !$clave) {
-            return $this->render('login.html.twig', ['error' => 'Por favor, complete todos los campos.']);
+     
+        public function index(Request $request,AuthenticationUtils $authenticationUtils)
+        {
+            
+            $lastUsername = $authenticationUtils->getLastUsername();
+        
+           
+            
+        
+            $lastError = $authenticationUtils->getLastAuthenticationError();
+            if ($lastError) {
+                $error = 'Credenciales incorrectas.';
+            }
+        
+       
+            return $this->render('login.html.twig', [
+                'last_username' => $lastUsername,
+                'error' => $error,
+            ]);
         }
     
-        // Buscar el usuario por correo electrónico
-        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
     
-        if (!$usuario) {
-            return $this->render('login.html.twig', ['error' => 'Usuario no encontrado']);
-        }
-    
-        // Verificar la contraseña
-        if (!$passwordHasher->isPasswordValid($usuario, $clave)) {
-            return $this->render('login.html.twig', ['error' => 'Contraseña incorrecta']);
-        }
-    
-        // Si todo es correcto, redirigir al usuario a la página de inicio
-        return $this->redirectToRoute('inicio');
-    
-    
-    }       
 	
 	#[Route('/logout', name:'logout')]
     public function logout(){    

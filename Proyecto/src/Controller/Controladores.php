@@ -152,7 +152,7 @@ class Controladores extends AbstractController
 
     
 
-
+    #[Route('/registrarse', name: 'registrarse')]
     public function registrarse(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response{    
         
         if ($request->isMethod('POST')) {
@@ -171,15 +171,18 @@ class Controladores extends AbstractController
 
             $usuarioExistente = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $email]);
             if ($usuarioExistente) {
-                $error= 'El email ya está registrado.';
-                return  $this->render('registrarse.html.twig', [
-                    'error' => $error  ]);
+                $error = 'El email ya está registrado.';
+                return $this->render('registrarse.html.twig', [
+                    'error' => $error
+                ]);
             }
-            $usuarioNombreExistente = $entityManager->getRepository(Usuario::class)->findOneBy(['usuario' => $usuario]);
-            if ($usuarioNombreExistente) {
+            $usuarioExistente = $entityManager->getRepository(Usuario::class)->findOneBy(['usuario' => $usuario]);
+            if ($usuarioExistente) {
+               
                 $error = 'El nombre de usuario ya está registrado.';
-                $this->render('registrarse.html.twig', [
-                    'error' => $error  ]);
+                return $this->render('registrarse.html.twig', [
+                    'error' => $error
+                ]);
             }
             if (!is_numeric($edad) || $edad <= 14) {
                 $error = 'Debes ser mayor de 14 años para registrarte.';

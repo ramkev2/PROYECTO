@@ -6,15 +6,15 @@
     </head>
     <body>	
         <h1>RECUPERAR CONTRASEÑA</h1>
-         {% if not mostrar %}
+         {% if mostrar is defined %}
             <form action="{{ path('correoRecuperacion') }}" method="post">
-                <input type="email" name="_username" placeholder="Introduce tu correo" required /><br><br>
+                <input type="email" name="email" placeholder="Introduce tu correo" required /><br><br>
                 <button type="submit">Enviar código</button>
             </form>
         {% else %}
             <!--input añadido-->
             <form action="{{ path('verificarCodigo') }}" method="post">
-                <input type="hidden" name="email" value="{{ email }}" />
+                <input type="hidden" name="email" value="{{ email | default('') }}" />
                 <input type="number" name="codigo" placeholder="Introduce el código de 6 dígitos" required /><br><br>
                 <button type="submit">Verificar Código</button>
             </form>

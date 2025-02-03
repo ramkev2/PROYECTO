@@ -13,7 +13,7 @@ class Publicacion{
     #[ORM\GeneratedValue]
     private $id;
    
-    #[ORM\Column(type:'datetime', name:'fecha_publicacion')] //*
+    #[ORM\Column(type:'datetime', name:'fecha_publicacion')] 
     private $fecha_publicacion;
 
 	#[ORM\Column(type:'integer', name:'likes')]
@@ -24,6 +24,9 @@ class Publicacion{
 
     #[ORM\Column(type:'integer', name:'usuario_id')]
 	private $usuario_id;
+    #[ORM\ManyToOne(targetEntity: Usuario::class, inversedBy: 'publicaciones')]
+    #[ORM\JoinColumn(nullable: false)]
+    private Usuario $usuario;
 
 	
 	public function getId()
@@ -58,13 +61,15 @@ class Publicacion{
         $this->contenido = $contenido;
     }
 
-    public function getUsuario_id()
+    public function getUsuario()
     {
-        return $this->contenido;
+        return $this->usuario;
     }
-    public function setUsuario_id($usuario_id)
+
+    public function setUsuario(Usuario $usuario)
     {
-        $this->usuario_id = $usuario_id;
+        $this->usuario = $usuario;
+        return $this;
     }
 }
 

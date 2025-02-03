@@ -19,6 +19,7 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 
 class Controladores extends AbstractController
@@ -219,6 +220,30 @@ public function registrarse(Request $request, EntityManagerInterface $entityMana
     return $this->render('registrarse.html.twig', [
         'error' => $error
         
+    ]);
+}
+#[Route('/crearPost', name:'crearPost', methods:['POST'])]
+public function crearPost(Request $request, EntityManagerInterface $entityManager): JsonResponse
+{
+    $usuario = $this->getUser();
+    $contenido = $request->request->get('contenido');
+
+    if (!$contenido) {
+        return new JsonResponse(['success' => false, 'error' => 'El contenido no puede estar vacío']);
+    }
+
+    $post = new Publicacion();
+    $post->setUsuario($usuario);
+    $post->setContenido($contenido);
+    $post->setFecha_publicacion(new \DateTime());
+
+    $entityManager->persist($post);
+    $entityManager->flush();
+
+    return new JsonResponse([
+        'success' => true,
+        'contenido' => $contenido,
+        'fecha' => $post->getFecha_publicacion()->format('d/m/Y H:i'),
     ]);
 }
 

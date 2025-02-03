@@ -1,0 +1,35 @@
+<form id="postForm">
+    <textarea name="contenido" placeholder="Escribe algo..."></textarea>
+    <button type="submit">Publicar</button>
+</form>
+<div id="postsContainer">
+    {% for post in posts %}
+        <div class="post">
+            <p>{{ post.contenido }}</p>
+            <small>{{ post.fechaPublicacion|date("d/m/Y H:i") }}</small>
+            <span>Comentarios: {{ post.comentarios|length }}</span>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+document.getElementById('postForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    let formData = new FormData(this);
+
+    fetch('/crearPost', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            let newPost = document.createElement('div');
+            newPost.classList.add('post');
+            newPost.innerHTML = `<p>${data.contenido}</p><small>${data.fecha}</small><span>Comentarios: 0</span>`;
+            document.getElementById('postsContainer').prepend(newPost);
+        }
+    });
+});
+</script>

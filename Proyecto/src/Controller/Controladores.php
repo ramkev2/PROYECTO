@@ -207,7 +207,22 @@ class Controladores extends AbstractController
 
     #[Route('/recuperarContraseña', name:'recuperarContraseña')]
     public function recuperarContraseña(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response{    
-        return new Response();
+        
+    }
+
+    #[Route('/home', name:'home')]
+    public function home(Request $request, EntityManagerInterface $entityManager, UserPasswordHashedInterface $passwordHasher):Response{
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $publicaciones = $entityManager->getRepository(Publicacion::class)->findAll();
+
+        if (!$publicaciones) {
+            throw $this->createNotFoundException('Ha ocurrido un error');
+        }
+
+      
+        
+        return $this->render('home.html.twig', ['publicaciones'=>$publicaciones]);
     }
     
 }

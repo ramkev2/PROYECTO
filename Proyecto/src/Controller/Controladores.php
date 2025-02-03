@@ -21,6 +21,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 
+
 class Controladores extends AbstractController
 {
 	#[Route('/login', name:'login')]
@@ -67,26 +68,26 @@ class Controladores extends AbstractController
     }
 
     //configurar el correo para que envie el mensaje
-    #[Route('/correoRecuperacion', name:'correoRecuperacion')]	
-	public function correoRecuperacion(Request $request, 
-    EntityManagerInterface $entityManager, 
-    UserRepository $userRepository, 
-    MailerInterface $mailer) {
-	
-        $correo = $request->request->get('_username');
-
-        // Asegurarse de que se ha enviado el correo
+    #[Route('/correoRecuperacion', name:'correoRecuperacion')]
+    public function correoRecuperacion(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer
+    ) {
+        $correo = $request->request->get('email');
+    
         if (empty($correo)) {
             return new Response("Por favor, introduce tu correo.");
         }
-
-        $usuario = $userRepository->findOneBy(['email' => $correo]);
-
+    
+       
+        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
+    
         if (!$usuario) {
             return new Response("Correo no encontrado.");
         }
-
-        //esto genera un token unico
+    
+        // esto genera un codigo aleatorio de 6 digitos
         $codigo = random_int(100000, 999999);
         $usuario->setResetToken($codigo);
         $entityManager->persist($usuario);
@@ -94,32 +95,32 @@ class Controladores extends AbstractController
     
         // Enviar correo con el código
         $email = (new Email())
-            ->from('Slyce')
+            ->from('noreply@Slyce')
             ->to($correo)
             ->subject('Código de Recuperación de Contraseña')
             ->text("Tu código de recuperación es: $codigo");
     
         $mailer->send($email);
-
-        // la misma pagina pero con el input para ingresar el codigo 
-        return $this->render("recuperarContraseña.html.twig", [
+    
+        return $this->redirectToRoute('recuperarContraseña', [
             'mostrar' => true,
             'email' => $correo
         ]);
     }
-
+    
     //controlador para cambiar la contraseña
     #[Route('/cambioContraseña', name:'cambioContraseña')]	
 	public function cambioContraseña(EntityManagerInterface $entityManager)
 	{
 		$correo = $request->request->get('email');
 		$newPass = $request->request->get('nuevaContra');
-        $usuario = $userRepository->findOneBy(['email' => $correo]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
 
         if (!$usuario) {
             return new Response("Error: usuario no encontrado.");
         }
 
+        $hashedPassword = $passwordHasher->hashPassword($usuario, $newPass);
 		$usuario->setPassword($hashedPassword);
         $usuario->setResetToken(null); // Eliminar el código
         $entityManager->persist($usuario);
@@ -129,13 +130,13 @@ class Controladores extends AbstractController
 
     //controlador para verificar el codigo
     #[Route('/verificarCodigo', name:'verificarCodigo')]	
-	public function verificarCodigo(EntityManagerInterface $entityManager)
+	public function verificarCodigo(Request $request, EntityManagerInterface $entityManager)
 	{
 	
         $correo = $request->request->get('email');
         $codigoIngresado = $request->request->get('codigo');
 
-        $usuario = $userRepository->findOneBy(['email' => $correo]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
 
         if (!$usuario || $usuario->getResetToken() != $codigoIngresado) {
             return new Response("Código incorrecto. Inténtalo de nuevo.");
@@ -143,7 +144,6 @@ class Controladores extends AbstractController
 
         // redirigir a la plantilla para que pueda cambiar la contraseña
         return $this->redirectToRoute('cambiarContraseña', ['email' => $correo]);
-
 
 	}
 

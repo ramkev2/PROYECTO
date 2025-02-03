@@ -34,20 +34,26 @@ class Controladores extends AbstractController
     {
         $correo = $request->request->get('username');
         $clave = $request->request->get('password');
+
+        // Verificar si los datos están presentes
+        if (!$correo || !$clave) {
+            return $this->render('login.html.twig', ['error' => 'Por favor, complete todos los campos.']);
+        }
     
-        // Buscar usuario por email
+        // Buscar el usuario por correo electrónico
         $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
     
         if (!$usuario) {
             return $this->render('login.html.twig', ['error' => 'Usuario no encontrado']);
         }
     
-        // Verificar contraseña
+        // Verificar la contraseña
         if (!$passwordHasher->isPasswordValid($usuario, $clave)) {
             return $this->render('login.html.twig', ['error' => 'Contraseña incorrecta']);
         }
     
-       return $this->render('inicio.html.twig');
+        // Si todo es correcto, redirigir al usuario a la página de inicio
+        return $this->redirectToRoute('inicio');
     
     
     }       
@@ -203,7 +209,10 @@ class Controladores extends AbstractController
 
             $entityManager->persist($nuevoUsuario);
             $entityManager->flush();
-            return $this->redirectToRoute('login');
+            $okey = 'Usuario registrado con éxito.';
+            return $this-> render('login.html.twig', [
+                'okey' => $okey
+            ]);
         }
         return $this->render('registrarse.html.twig');
     }

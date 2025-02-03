@@ -5,6 +5,16 @@
         <title>Slyce</title>
     </head>
     <body>	
+    {% if error is defined %}
+        <div style="color: red; border: 1px solid red; padding: 10px; background-color: #f8d7da; margin-bottom: 15px;">
+            {{ error }}
+        </div>
+    {% endif %}
+    {% if okey is defined %}
+        <div style="color: green; border: 1px solid green; padding: 10px; background-color: #d4edda; margin-bottom: 15px;">
+            {{ okey }}
+        </div>
+    {% endif %}
 
     	<form action="{{ path('ctr_login') }}" method="post">
 			Usuario

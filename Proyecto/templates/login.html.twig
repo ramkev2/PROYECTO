@@ -5,12 +5,31 @@
         <title>Slyce</title>
     </head>
     <body>	
-    	<form action="{{ path('login') }}" method="post">
-			<input type="text" id="username" name="_username" placeholder="Introduce tu correo"/><br><br>
-			<input type="password" id="password" name="_password" placeholder="Introduce tu contraseña"/><br><br>
-            <a>¿No tienes cuenta? <a href="{{ path('registrarse') }}">Regístrate</a></a><br><br>
-            <a>¿Has olvidado la contraseña? <a href="{{ path('recuperarContraseña') }}">Recupérala</a></a>
-            <br><br>
+    {% if error is defined %}
+        <div style="color: red; border: 1px solid red; padding: 10px; background-color: #f8d7da; margin-bottom: 15px;">
+            {{ error }}
+        </div>
+    {% endif %}
+    {% if okey is defined %}
+        <div style="color: green; border: 1px solid green; padding: 10px; background-color: #d4edda; margin-bottom: 15px;">
+            {{ okey }}
+        </div>
+    {% endif %}
+
+    	<form action="{{ path('ctr_login') }}" method="post">
+			Usuario
+			<input type="text" id="username" name="username" />
+             <br>
+			Clave
+           
+			<input type="password" id="password" name="password" />
+       
+            <p>¿No tienes cuenta? <a href="{{ path('registrarse') }}">Regístrate</a></p>
+            
+            <p>¿Has olvidado la contraseña? <a href="{{ path('recuperarContraseña') }}">Recupérala</a></p>  
+          
+
+    	
 			<button type="submit">login</button>
 		</form>
     </body>

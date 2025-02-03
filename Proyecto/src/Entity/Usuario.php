@@ -26,7 +26,7 @@ class Usuario implements UserInterface , PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', name: 'email')]
     private string $email;
 
-    #[ORM\Column(type: 'string', name: 'contraseña')]
+    #[ORM\Column(type: 'string', name: 'password')]
     private string $password;
 
     #[ORM\Column(type: 'integer', name: 'edad')]
@@ -98,7 +98,7 @@ class Usuario implements UserInterface , PasswordAuthenticatedUserInterface
         return $this->password;
     }
 
-    public function setClave(string $password)
+    public function setpassword(string $password)
     {
         $this->password = $password;
     }

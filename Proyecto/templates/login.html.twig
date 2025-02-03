@@ -5,6 +5,7 @@
         <title>Slyce</title>
     </head>
     <body>	
+
     	<form action="{{ path('ctr_login') }}" method="post">
 			Usuario
 			<input type="text" id="username" name="username" />
@@ -17,6 +18,8 @@
             
             <p>¿Has olvidado la contraseña? <a href="{{ path('recuperarContraseña') }}">Recupérala</a></p>  
           
+
+    	
 			<button type="submit">login</button>
 		</form>
     </body>

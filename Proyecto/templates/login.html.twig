@@ -5,14 +5,24 @@
         <title>Slyce</title>
     </head>
     <body>	
+   {% if error is defined and error is not empty %}
+    <div style="color: red; border: 1px solid red; padding: 10px; background-color: #f8d7da; margin-bottom: 15px;">
+        {{ error }}
+    </div>
+{% endif %}
+    {% if okey is defined %}
+        <div style="color: green; border: 1px solid green; padding: 10px; background-color: #d4edda; margin-bottom: 15px;">
+            {{ okey }}
+        </div>
+    {% endif %}
 
-    	<form action="{{ path('ctr_login') }}" method="post">
+    	<form action="{{ path('login') }}" method="post">
 			Usuario
-			<input type="text" id="username" name="username" />
+			<input type="text" id="username" name="_username" />
              <br>
 			Clave
            
-			<input type="password" id="password" name="password" />
+			<input type="password" id="password" name="_password" />
        
             <p>¿No tienes cuenta? <a href="{{ path('registrarse') }}">Regístrate</a></p>
             

@@ -71,14 +71,27 @@ class Controladores extends AbstractController
             $edad = (int)$request->request->get('edad');
 
             if (!$nombre || !$apellido || !$email || !$usuario || !$clave || !$edad) {
-                $this->addFlash('error', 'Todos los campos son obligatorios.');
-                return $this->redirectToRoute('registrarse');
+              $error= 'Todos los campos son obligatorios.';
+              return $this->render('registrarse.html.twig', [
+                'error' => $error  ]);
             }
 
             $usuarioExistente = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $email]);
             if ($usuarioExistente) {
-                $this->addFlash('error', 'El email ya está registrado.');
-                return $this->redirectToRoute('registrarse');
+                $error= 'El email ya está registrado.';
+                return  $this->render('registrarse.html.twig', [
+                    'error' => $error  ]);
+            }
+            $usuarioNombreExistente = $entityManager->getRepository(Usuario::class)->findOneBy(['usuario' => $usuario]);
+            if ($usuarioNombreExistente) {
+                $error = 'El nombre de usuario ya está registrado.';
+                $this->render('registrarse.html.twig', [
+                    'error' => $error  ]);
+            }
+            if (!is_numeric($edad) || $edad <= 14) {
+                $error = 'Debes ser mayor de 14 años para registrarte.';
+                return  $this->render('registrarse.html.twig', [
+                    'error' => $error  ]);
             }
 
             $nuevoUsuario = new Usuario();
@@ -87,14 +100,13 @@ class Controladores extends AbstractController
             $nuevoUsuario->setEmail($email);
             $nuevoUsuario->setUsuario($usuario);
             $nuevoUsuario->setEdad($edad);
+            $nuevoUsuario->setRol(0);
 
             $hashedPassword = $passwordHasher->hashPassword($nuevoUsuario, $clave);
             $nuevoUsuario->setClave($hashedPassword);
 
             $entityManager->persist($nuevoUsuario);
             $entityManager->flush();
-    
-            $this->addFlash('success', 'Usuario registrado con exito.');
             return $this->redirectToRoute('login');
         }
         return $this->render('registrarse.html.twig');

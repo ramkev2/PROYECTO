@@ -1,0 +1,26 @@
+{% extends "cabecera.html.twig" %}
+{% block title %}Home{% endblock %}
+{% block contenido %}
+
+<table>
+    <tr>
+        <th>Usuario</th>
+        <th>Publicación</th>
+        <th>Likes</th>
+        <th>Acción</th>
+    </tr>
+    {% for publicacion in publicaciones %}
+    <tr>
+        <td>{{ publicacion.usuario.usuario }}</td>
+        <td>{{ publicacion.contenido }}</td>
+        <td>{{ publicacion.likes }}</td>
+        <td>
+            <form method="post" action="/like/{{ publicacion.id }}">
+                <button type="submit">Like</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

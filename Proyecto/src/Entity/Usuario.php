@@ -126,4 +126,16 @@ class Usuario implements UserInterface , PasswordAuthenticatedUserInterface
     {
 
     }
+
+    public function getResetToken()
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken($resetToken)
+    {
+        $this->resetToken = $resetToken;
+        return $this;
+    }
+
 }

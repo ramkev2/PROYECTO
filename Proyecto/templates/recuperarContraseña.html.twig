@@ -6,12 +6,12 @@
     </head>
     <body>	
         <h1>RECUPERAR CONTRASEÑA</h1>
-         {% if mostrar is defined %}
+         {% if mostrar is defined and mostrar == false %}
             <form action="{{ path('correoRecuperacion') }}" method="post">
                 <input type="email" name="email" placeholder="Introduce tu correo" required /><br><br>
                 <button type="submit">Enviar código</button>
             </form>
-        {% else %}
+        {% elseif mostrar is defined and mostrar == true %}
             <!--input añadido-->
             <form action="{{ path('verificarCodigo') }}" method="post">
                 <input type="hidden" name="email" value="{{ email | default('') }}" />

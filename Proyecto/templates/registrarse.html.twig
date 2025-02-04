@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registrarse</title>
+      
+</head>
+<body>
+
+    <form method="post" action="{{ path('registrarse') }}" id="registro-form">
+        <label for="nombre">Nombre: </label>
+        <input type="hidden" id="check_usuario_url" value="{{ path('check-usuario') }}">
+        <input type="hidden" id="registrarse" value="{{ path('registrarse') }}">
+        <input type="text" id="nombre" name="nombre" >
+
+        <br>
+
+        <label for="apellido">Apellidos: </label>
+        <input type="text" id="apellido" name="apellido" >
+        <br>
+
+        <label for="email">Email: </label>
+        <input type="text" id="email" name="email" >
+        <br>
+
+        <label for="usuario">Usuario: </label>
+        <input type="text" id="usuario" name="usuario" >
+        <br>
+
+        <label for="clave">Contraseña: </label>
+        <input type="password" id="clave" name="clave" >
+        <br>
+
+        <label for="edad">Edad: </label>
+        <input type="number" id="edad" name="edad" >
+        <br>
+
+        <button type="submit">Registrarse</button>
+    </form>
+    <div id="mensaje"></div>
+    <p>¿Ya tienes cuenta? <a href="{{ path('login') }}">Inicia sesión</a></p>
+    <script src="{{ asset('js/validaciones.js') }}"></script>
+</body>
+</html>

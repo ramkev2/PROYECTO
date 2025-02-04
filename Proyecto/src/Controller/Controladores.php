@@ -19,10 +19,21 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-
-
+use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Repository\UsuarioRepository;
 class Controladores extends AbstractController
 {
+    private $usuarioRepository;
+    private $entityManager;
+
+    // Inyectamos el repositorio y el EntityManager
+    public function __construct(UsuarioRepository $usuarioRepository, EntityManagerInterface $entityManager)
+    {
+        $this->usuarioRepository = $usuarioRepository;
+        $this->entityManager = $entityManager;
+    }
+ 
+
 	#[Route('/login', name:'login')]
     public function login(){    
         return $this->render('login.html.twig');
@@ -50,165 +61,78 @@ class Controladores extends AbstractController
        return $this->render('inicio.html.twig');
     
     
-    }       
+    }      
+   
+   
+
+    // Verificar si el usuario o email ya existen
+    #[Route('/check-usuario', name: 'check-usuario', methods: ['POST'])]
+    public function checkUsuario(Request $request,EntityManagerInterface $entityManager): JsonResponse
+    {
+        $usuario = $request->request->get('usuario');
+        $email = $request->request->get('email');
+
+        // Consultar si existe un usuario con el mismo nombre de usuario
+        $existingUserByUsername = $this->entityManager->getRepository(Usuario::class)->findOneBy(['usuario' => $usuario]);
+
+        // Consultar si existe un usuario con el mismo email
+        $existingUserByEmail = $this->entityManager->getRepository(Usuario::class)->findOneBy(['email' => $email]);
+
+        if ($existingUserByUsername) {
+            return new JsonResponse(['error' => 'Este nombre de usuario ya está en uso.'], 400);
+        }
+
+        if ($existingUserByEmail) {
+            return new JsonResponse(['error' => 'Este email ya está registrado.'], 400);
+        }
+
+        return new JsonResponse(['success' => 'El nombre de usuario y el email están disponibles.'], 200);
+    }
+
+    // Registro de usuario
+    #[Route('/registrarse', name: 'registrarse')]
+    public function registrarse(Request $request, UserPasswordHasherInterface $passwordHasher)
+    {
+        if($request->isMethod('GET')){
+            return $this->render('registrarse.html.twig');
+        }
+        $nombre = $request->request->get('nombre');
+        $apellido = $request->request->get('apellido');
+        $usuario = $request->request->get('usuario');
+        $email = $request->request->get('email');
+        $clave = $request->request->get('clave');
+        $edad = $request->request->get('edad');
+
+       
+        // Crear una nueva entidad de usuario
+        $nuevoUsuario = new Usuario();
+        $nuevoUsuario->setNombre($nombre);
+        $nuevoUsuario->setApellido($apellido);
+        $nuevoUsuario->setUsuario($usuario);
+        $nuevoUsuario->setEmail($email);
+        $nuevoUsuario->setEdad($edad);
+        $nuevoUsuario->setRol(0);
+
+        // Hash de la contraseña
+        $hashedPassword = $passwordHasher->hashPassword($nuevoUsuario, $clave);
+        $nuevoUsuario->setPassword($hashedPassword);
+
+        // Guardar usuario en la base de datos
+        $this->entityManager->persist($nuevoUsuario);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['success' => 'Usuario registrado correctamente.'], 200);
+    }
+    
+
 	
 	#[Route('/logout', name:'logout')]
     public function logout(){    
         return new Response();
     }   
-    
+  
 
-   
-    
-
-    // #[Route('/recuperarContraseña', name:'recuperarContraseña')]
-    // public function recuperarContraseña(Request $request){   
-        
-    //     // Comprobamos si el usuario al menos se ha logueado
-	// 	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-
-    //     return $this->render('recuperarContraseña.html.twig');
-    // }
-
-    // //configurar el correo para que envie el mensaje
-    // #[Route('/correoRecuperacion', name:'correoRecuperacion')]	
-	// public function correoRecuperacion(Request $request, 
-    // EntityManagerInterface $entityManager, 
-    // UserRepository $userRepository, 
-    // MailerInterface $mailer)
-	
-    //     $correo = $request->request->get('_username');
-
-    //     // Asegurarse de que se ha enviado el correo
-    //     if (empty($correo)) {
-    //         return new Response("Por favor, introduce tu correo.");
-    //     }
-
-    //     $usuario = $userRepository->findOneBy(['email' => $correo]);
-
-    //     if (!$usuario) {
-    //         return new Response("Correo no encontrado.");
-    //     }
-
-    //     //esto genera un token unico
-    //     $codigo = random_int(100000, 999999);
-    //     $usuario->setResetToken($codigo);
-    //     $entityManager->persist($usuario);
-    //     $entityManager->flush();
-    
-    //     // Enviar correo con el código
-    //     $email = (new Email())
-    //         ->from('Slyce')
-    //         ->to($correo)
-    //         ->subject('Código de Recuperación de Contraseña')
-    //         ->text("Tu código de recuperación es: $codigo");
-    
-    //     $mailer->send($email);
-
-    //     // la misma pagina pero con el input para ingresar el codigo 
-    //     return $this->render("recuperarContraseña.html.twig", [
-    //         'mostrar' => true,
-    //         'email' => $correo
-    //     ]);
-    // }
-
-    // //controlador para cambiar la contraseña
-    // #[Route('/cambioContraseña', name:'cambioContraseña')]	
-	// public function cambioContraseña(EntityManagerInterface $entityManager)
-	// {
-	// 	$correo = $request->request->get('email');
-	// 	$newPass = $request->request->get('nuevaContra');
-    //     $usuario = $userRepository->findOneBy(['email' => $correo]);
-
-    //     if (!$usuario) {
-    //         return new Response("Error: usuario no encontrado.");
-    //     }
-
-	// 	$usuario->setPassword($hashedPassword);
-    //     $usuario->setResetToken(null); // Eliminar el código
-    //     $entityManager->persist($usuario);
-    //     $entityManager->flush();
-	// 	return new Response("Contraseña actualizada con éxito.");
-	// }
-
-    // //controlador para verificar el codigo
-    // #[Route('/verificarCodigo', name:'verificarCodigo')]	
-	// public function verificarCodigo(EntityManagerInterface $entityManager)
-	// {
-	
-    //     $correo = $request->request->get('email');
-    //     $codigoIngresado = $request->request->get('codigo');
-
-    //     $usuario = $userRepository->findOneBy(['email' => $correo]);
-
-    //     if (!$usuario || $usuario->getResetToken() != $codigoIngresado) {
-    //         return new Response("Código incorrecto. Inténtalo de nuevo.");
-    //     }
-
-    //     // redirigir a la plantilla para que pueda cambiar la contraseña
-    //     return $this->redirectToRoute('cambiarContraseña.html.twig', ['email' => $correo]);
-
-	// }
-
-    
-
-
-    public function registrarse(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response{    
-        
-        if ($request->isMethod('POST')) {
-            $nombre = $request->request->get('nombre');
-            $apellido = $request->request->get('apellido');
-            $email = $request->request->get('email');
-            $usuario = $request->request->get('usuario');
-            $clave = $request->request->get('clave');
-            $edad = (int)$request->request->get('edad');
-
-            if (!$nombre || !$apellido || !$email || !$usuario || !$clave || !$edad) {
-              $error= 'Todos los campos son obligatorios.';
-              return $this->render('registrarse.html.twig', [
-                'error' => $error  ]);
-            }
-
-            $usuarioExistente = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $email]);
-            if ($usuarioExistente) {
-                $error= 'El email ya está registrado.';
-                return  $this->render('registrarse.html.twig', [
-                    'error' => $error  ]);
-            }
-            $usuarioNombreExistente = $entityManager->getRepository(Usuario::class)->findOneBy(['usuario' => $usuario]);
-            if ($usuarioNombreExistente) {
-                $error = 'El nombre de usuario ya está registrado.';
-                $this->render('registrarse.html.twig', [
-                    'error' => $error  ]);
-            }
-            if (!is_numeric($edad) || $edad <= 14) {
-                $error = 'Debes ser mayor de 14 años para registrarte.';
-                return  $this->render('registrarse.html.twig', [
-                    'error' => $error  ]);
-            }
-
-            $nuevoUsuario = new Usuario();
-            $nuevoUsuario->setNombre($nombre);
-            $nuevoUsuario->setApellido($apellido);
-            $nuevoUsuario->setEmail($email);
-            $nuevoUsuario->setUsuario($usuario);
-            $nuevoUsuario->setEdad($edad);
-            $nuevoUsuario->setRol(0);
-
-            $hashedPassword = $passwordHasher->hashPassword($nuevoUsuario, $clave);
-            $nuevoUsuario->setpassword($hashedPassword);
-
-            $entityManager->persist($nuevoUsuario);
-            $entityManager->flush();
-            return $this->redirectToRoute('login');
-        }
-        return $this->render('registrarse.html.twig');
-    }
-
-    #[Route('/recuperarContraseña', name:'recuperarContraseña')]
-    public function recuperarContraseña(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response{    
-        
-    }
+ 
 
     //configurar el correo para que envie el mensaje
     #[Route('/correoRecuperacion', name:'correoRecuperacion')]
@@ -238,7 +162,7 @@ class Controladores extends AbstractController
     
         // Enviar correo con el código
         $email = (new Email())
-            ->from('noreply@Slyce')
+            ->from('noreply@Slyce.com')
             ->to($correo)
             ->subject('Código de Recuperación de Contraseña')
             ->text("Tu código de recuperación es: $codigo");
@@ -253,7 +177,7 @@ class Controladores extends AbstractController
     
     //controlador para cambiar la contraseña
     #[Route('/cambioContraseña', name:'cambioContraseña')]	
-	public function cambioContraseña(EntityManagerInterface $entityManager)
+	public function cambioContraseña(EntityManagerInterface $entityManager,Request $request,  UserPasswordHasherInterface $passwordHasher)
 	{
 		$correo = $request->request->get('email');
 		$newPass = $request->request->get('nuevaContra');
@@ -290,51 +214,7 @@ class Controladores extends AbstractController
 
 	}
 
-    #[Route('/registrarse', name:'registrarse')]
-    public function registrarse(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher)
-    {
-            if ($request->isMethod('POST')) {
-                $nombre = $request->request->get('nombre');
-                $apellido = $request->request->get('apellido');
-                $email = $request->request->get('email');
-                $usuario = $request->request->get('usuario');
-                $clave = $request->request->get('clave');
-                $edad = (int)$request->request->get('edad');
-
-                if (!$nombre || !$apellido || !$email || !$usuario || !$clave || !$edad) {
-                    $this->addFlash('error', 'Todos los campos son obligatorios.');
-                    return $this->redirectToRoute('registrarse');
-                }
-
-                $usuarioExistente = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $email]);
-                if ($usuarioExistente) {
-                    $this->addFlash('error', 'El email ya está registrado.');
-                    return $this->redirectToRoute('registrarse');
-                }
-
-                $nuevoUsuario = new Usuario();
-                $nuevoUsuario->setNombre($nombre);
-                $nuevoUsuario->setApellido($apellido);
-                $nuevoUsuario->setEmail($email);
-                $nuevoUsuario->setUsuario($usuario);
-                $nuevoUsuario->setEdad($edad);
-
-                $hashedPassword = $passwordHasher->hashPassword($nuevoUsuario, $clave);
-                $nuevoUsuario->setClave($hashedPassword);
-
-                $entityManager->persist($nuevoUsuario);
-                $entityManager->flush();
-
-                // Redirigir al login con mensaje de éxito
-                return $this->redirectToRoute('login', ['okey' => 'Registrado correctamente']);
-            }
-        }
-    }
-
-    return $this->render('registrarse.html.twig', [
-        'error' => $error
-        
-    ]);
+  
 }
 
 

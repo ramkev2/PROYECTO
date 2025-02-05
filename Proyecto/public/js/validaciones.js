@@ -76,47 +76,44 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
-        
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", checkUsuarioUrl, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    // Procesar la respuesta
+                    const data = JSON.parse(xhr.responseText);
 
-        // Validar que el usuario y email no existan
-        fetch(checkUsuarioUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-                'usuario': usuario,
-                'email': email
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                mostrarError(data.error); 
-            } else {
-                // Si no hay errores, enviamos el formulario con fetch
-                const formData = new FormData(form);
-                fetch(registrarseUrl, {
-                    method: "POST",
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
                     if (data.error) {
-                        mostrarError(data.error);  // Mostrar cualquier error que devuelva el servidor
+                        mostrarError(data.error); // Mostrar el error si ya existe el usuario o el email
                     } else {
-                        mostrarExito(data.success);  // Mostrar el mensaje de éxito
+
+                        const formData = new FormData(form);
+                        const xhrSubmit = new XMLHttpRequest();
+                        xhrSubmit.open("POST", registrarseUrl, true);
+
+                        xhrSubmit.onreadystatechange = function () {
+                            if (xhrSubmit.readyState === 4) {
+                                if (xhrSubmit.status === 200) {
+                                    const response = JSON.parse(xhrSubmit.responseText);
+                                    if (response.error) {
+                                        mostrarError(response.error); // Mostrar cualquier error que devuelva el servidor
+                                    } else {
+                                        mostrarExito(response.success); // Mostrar mensaje de éxito
+                                    }
+                                }
+                            }
+                        };
+                        xhrSubmit.send(formData);
                     }
-                })
-                .catch(error => {
-                    mostrarError("Hubo un problema con la solicitud.");
-                    console.error("Error de solicitud AJAX:", error);
-                });
+                } else {
+                    mostrarError("Hubo un problema con la validación de usuario.");
+                    console.error("Error en la solicitud AJAX de validación de usuario:", xhr.statusText);
+                }
             }
-        })
-        .catch(error => {
-            mostrarError("Hubo un problema con la validación de usuario.");
-            console.error("Error en la solicitud AJAX de validación de usuario:", error);
-        });
+        };
+
+        // Enviar la petición para verificar el usuario y email
+        xhr.send(params);
     });
 });

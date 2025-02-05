@@ -225,7 +225,7 @@ class Controladores extends AbstractController
         return $this->render('home.html.twig', [publicaciones => $publicaciones]);
     }
     
-    /*#[Route('/busqueda', name: 'busqueda', methods: ['POST'])]
+    #[Route('/busqueda', name: 'busqueda', methods: ['POST'])]
 
     public function busqueda(Request $request, EntityManagerInterface $entityManager){
         $busqueda = $request->request->get('busqueda');
@@ -234,16 +234,23 @@ class Controladores extends AbstractController
         if (!$busqueda) {
             return $this->render('busqueda.html.twig', ['error'=> 'Introduce una busqueda']);
 
-        $usuario = $entitiManager->getRepository(Usuario::class)
+        $usuario = $entityManager->getRepository(Usuario::class)
         ->createQueryBuilder('b')
         ->where('b.usuario LIKE :busqueda')
         ->orWhere('b.nombre LIKE :busqueda')
+        ->setParameter('busqueda', '%$busqueda%')
         ->getQuery()
         ->getResult();
 
-        }*/
+        if (!$usarios) {
+            return $this->render('busqueda.html.twig', ['error'=> 'No se encontraron resultados']);
+        }
+
+        return $this->render('busqueda.html.twig', ['usuarios' => $usuarios]);
+
+        }
         
-   // }
+    }
 }
 
 

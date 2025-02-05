@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Buscar</title>
+</head>
+<body>
+    <h1>Buscar</h1>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    {% if usuarios is not empty %}
+        <table>
+            
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                </tr>
+            
+            
+                {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.id }}</td>
+                        <td>
+                            <a href="{{ path('perfil_usuario', { id: usuario.id }) }}">
+                                {{ usuario.nombre }}
+                            </a>
+                        </td>
+                        <td>{{ usuario.usuario }}</td>
+                        <td>{{ usuario.email }}</td>
+                    </tr>
+                {% endfor %}
+            
+        </table>
+    {% else %}
+        <p>No se encontraron resultados para la busqueda.</p>
+    {% endif %}
+</body>
+</html>

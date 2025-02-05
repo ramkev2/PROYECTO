@@ -214,7 +214,36 @@ class Controladores extends AbstractController
 
 	}
 
-  
+    //controlador para mostrar las publicaciones en la pagina de inicio
+    #[Route('inicio', name: 'inicio')]
+    public function inicio(EntityMangerInteface $entityManager){
+       
+        // Comprobamos si el usuario al menos se ha logueado
+		$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+       
+        $publicaciones = $entityManager->getRepository(Publicacion::class)->findAll();
+        return $this->render('home.html.twig', [publicaciones => $publicaciones]);
+    }
+    
+    /*#[Route('/busqueda', name: 'busqueda', methods: ['POST'])]
+
+    public function busqueda(Request $request, EntityManagerInterface $entityManager){
+        $busqueda = $request->request->get('busqueda');
+
+
+        if (!$busqueda) {
+            return $this->render('busqueda.html.twig', ['error'=> 'Introduce una busqueda']);
+
+        $usuario = $entitiManager->getRepository(Usuario::class)
+        ->createQueryBuilder('b')
+        ->where('b.usuario LIKE :busqueda')
+        ->orWhere('b.nombre LIKE :busqueda')
+        ->getQuery()
+        ->getResult();
+
+        }*/
+        
+   // }
 }
 
 

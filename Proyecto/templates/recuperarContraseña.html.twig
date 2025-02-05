@@ -1,23 +1,41 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Recuperar contraseña</title>
-    </head>
-    <body>	
-        <h1>RECUPERAR CONTRASEÑA</h1>
-         {% if mostrar is defined and mostrar == false %}
-            <form action="{{ path('correoRecuperacion') }}" method="post">
-                <input type="email" name="email" placeholder="Introduce tu correo" required /><br><br>
-                <button type="submit">Enviar código</button>
-            </form>
-        {% elseif mostrar is defined and mostrar == true %}
-            <!--input añadido-->
-            <form action="{{ path('verificarCodigo') }}" method="post">
-                <input type="hidden" name="email" value="{{ email | default('') }}" />
-                <input type="number" name="codigo" placeholder="Introduce el código de 6 dígitos" required /><br><br>
-                <button type="submit">Verificar Código</button>
-            </form>
-        {% endif %}
-    </body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Contraseña</title>
+    
+    <style>
+        #codigoContainer, #passwordContainer {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h2>Recuperar Contraseña</h2>
+
+    <!-- Campos ocultos para las rutas -->
+    <input type="hidden" id="rutaVerificarCorreo" value="{{ path('verificarCorreo') }}">
+    <input type="hidden" id="rutaVerificarCodigo" value="{{ path('verificarCodigo') }}">
+    <input type="hidden" id="rutaCambiarContraseña" value="{{ path('cambiarContraseña') }}">
+
+    <!-- Paso 1: Introducir Email -->
+    <div id="emailContainer">
+        <input type="email" id="email" placeholder="Introduce tu email">
+        <input type="button" value="Enviar Código" id="btnEnviarCodigo">
+    </div>
+
+    <!-- Paso 2: Ingresar Código -->
+    <div id="codigoContainer">
+        <input type="text" id="codigo" placeholder="Introduce el código">
+        <input type="button" value="Verificar Código" id="btnVerificarCodigo">
+    </div>
+
+    <!-- Paso 3: Cambiar Contraseña -->
+    <div id="passwordContainer">
+        <input type="password" id="nuevaContraseña" placeholder="Nueva contraseña">
+        <input type="button" value="Cambiar Contraseña" id="btnCambiarContraseña">
+    </div>
+    <script src="{{ asset('js/cambiaContra.js') }}"></script>
+</body>
 </html>

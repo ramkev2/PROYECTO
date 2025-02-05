@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Verificar Código</title>
+</head>
+<body>    
+    <h1>VERIFICAR CÓDIGO</h1>
+
+    {% if mensaje %}
+        <p style="color: green; font-weight: bold;">{{ mensaje }}</p>
+    {% endif %}
+
+    <form action="{{ path('procesarCodigo') }}" method="post">
+        <input type="hidden" name="email" value="{{ email }}" />
+        <input type="number" name="codigo" placeholder="Introduce el código de 6 dígitos" required /><br><br>
+        <button type="submit">Verificar Código</button>
+    </form>
+</body>
+</html>

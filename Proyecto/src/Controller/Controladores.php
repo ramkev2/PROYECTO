@@ -25,8 +25,6 @@ class Controladores extends AbstractController
 {
     private $usuarioRepository;
     private $entityManager;
-
-    // Inyectamos el repositorio y el EntityManager
     public function __construct(UsuarioRepository $usuarioRepository, EntityManagerInterface $entityManager)
     {
         $this->usuarioRepository = $usuarioRepository;
@@ -35,33 +33,19 @@ class Controladores extends AbstractController
  
 
 	#[Route('/login', name:'login')]
-    public function login(){    
-        return $this->render('login.html.twig');
+    public function index(AuthenticationUtils $authenticationUtils){  
+       
+       // Comprueba si hubo algún error
+         $error = $authenticationUtils->getLastAuthenticationError();
+
+        // Recupera el último nombre de usuario que se probó
+         $lastUsername = $authenticationUtils->getLastUsername();
+
+        // Renderizar el formulario de login
+        return $this->render('login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
     } 
-    #[Route('/ctr_login', name:'ctr_login')]
-    public function ctr_login(  Request $request, 
-    EntityManagerInterface $entityManager, 
-    UserPasswordHasherInterface $passwordHasher,)
-    {
-        $correo = $request->request->get('username');
-        $clave = $request->request->get('password');
-    
-        // Buscar usuario por email
-        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
-    
-        if (!$usuario) {
-            return $this->render('login.html.twig', ['error' => 'Usuario no encontrado']);
-        }
-    
-        // Verificar contraseña
-        if (!$passwordHasher->isPasswordValid($usuario, $clave)) {
-            return $this->render('login.html.twig', ['error' => 'Contraseña incorrecta']);
-        }
-    
-       return $this->render('inicio.html.twig');
-    
-    
-    }      
+   
+       
    
    
 

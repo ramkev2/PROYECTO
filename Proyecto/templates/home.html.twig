@@ -1,7 +1,82 @@
-{% extends "cabecera.html.twig" %}
-{% block title %}Home{% endblock %}
+{# {% extends "cabecera.html.twig" %} #}
+{% block title %}Inicio{% endblock %}
 {% block contenido %}
 
+<style>
+    body {
+        margin: 0;
+       display: flex;
+
+    }
+
+    .barralateral{
+        width:200px;
+        height: 100vh;
+        padding: 10px;
+        display: flex;
+        flex-direction:column;
+    }
+
+    .barralateral a{
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-radius: 10px;
+        transition: background 0.3s;
+    }
+
+     .barralateral a:hover {
+        background-color: #1a1a1a;
+    }
+
+    .barralateral img{
+        width:30px;
+        margin-right: 10px;
+
+    }
+
+    .contenido{
+        flex-grow: 1;
+        padding: 20px;
+    }
+
+    table {
+        width:100%;
+        border-collapse: collapse;
+        border-radius: 10px;
+        overflow: hidden;
+
+
+    }
+
+    th,td {
+        padding:10px;
+        border-bottom:1px solid #ddd;
+
+    }
+
+    button {
+        border:none;
+        padding: 8px;
+        cursor:pointer;
+        border-radius:5px;
+    }
+
+    button:hover{
+        background-color: #ff3040;
+    }
+
+</style>
+
+<div class="barralateral">
+    <a href="{{path('inicio')}}"><img src="icono a poner" alt="Inicio">Inicio</a>
+    <a href="{{path('busqueda')}}"><img src="icono a poner" alt="Busqueda">Busqueda</a>
+    <a href="{{path('notificaciones')}}"><img src="icono a poner" alt="Notificaciones">Notificaciones</a>
+    <a href="{{ path('perfil', {'id': usuario.id}) }}"><img src="icono a poner" alt="Perfil">Perfil</a>
+</div>
+
+<div class="contenido">
 <table>
     <tr>
         <th>Usuario</th>
@@ -22,5 +97,7 @@
     </tr>
     {% endfor %}
 </table>
+
+</div>
 
 {% endblock %}

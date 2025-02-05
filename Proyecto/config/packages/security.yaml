@@ -22,7 +22,7 @@ security:
             form_login:
                 login_path: login       # Ruta al controlador de login
                 check_path: login       # Ruta a la que se envían el POST del formulario de login
-                default_target_path: portal_clinico # Si hay autenticación correcta, el controlador a dónde se manda al usuario
+                default_target_path: inicio # Si hay autenticación correcta, el controlador a dónde se manda al usuario
             logout:
                 path: /logout               # Ruta inventada (y declarada aquí) para hacer el logout
                 target: login           # Si se le desloguea bien, a dónde se le manda

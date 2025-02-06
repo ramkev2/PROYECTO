@@ -120,83 +120,86 @@ class Controladores extends AbstractController
 
     //configurar el correo para que envie el mensaje
     #[Route('/correoRecuperacion', name:'correoRecuperacion')]
-    public function correoRecuperacion(
-        Request $request,
-        EntityManagerInterface $entityManager,
-        MailerInterface $mailer
-    ) {
+    public function correoRecuperacion(Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer)
+    {
         $correo = $request->request->get('email');
-    
+
         if (empty($correo)) {
             return new Response("Por favor, introduce tu correo.");
         }
-    
-       
+
         $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
-    
+
         if (!$usuario) {
             return new Response("Correo no encontrado.");
         }
-    
-        // esto genera un codigo aleatorio de 6 digitos
+
+        // Generar código aleatorio de 6 dígitos
         $codigo = random_int(100000, 999999);
-        $usuario->setResetToken($codigo);
-        $entityManager->persist($usuario);
-        $entityManager->flush();
-    
-        // Enviar correo con el código
+
+        // Guardar el código en la sesión
+        $session = $request->getSession();
+        $session->set('codigo_recuperacion', $codigo);
+        $session->set('email_recuperacion', $correo);
+
+        // Enviar el código por correo
         $email = (new Email())
             ->from('noreply@Slyce.com')
             ->to($correo)
             ->subject('Código de Recuperación de Contraseña')
             ->text("Tu código de recuperación es: $codigo");
-    
+
         $mailer->send($email);
-    
-        return $this->redirectToRoute('recuperarContraseña', [
-            'mostrar' => true,
-            'email' => $correo
-        ]);
+
+        return $this->redirectToRoute('recuperarContraseña', ['mostrar' => true]);
     }
+
     
     //controlador para cambiar la contraseña
-    #[Route('/cambioContraseña', name:'cambioContraseña')]	
-	public function cambioContraseña(EntityManagerInterface $entityManager,Request $request,  UserPasswordHasherInterface $passwordHasher)
-	{
-		$correo = $request->request->get('email');
-		$newPass = $request->request->get('nuevaContra');
+    #[Route('/cambioContraseña', name:'cambioContraseña')]
+    public function cambioContraseña(EntityManagerInterface $entityManager, Request $request, UserPasswordHasherInterface $passwordHasher)
+    {
+        $correo = $request->request->get('email');
+        $newPass = $request->request->get('nuevaContra');
         $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
 
         if (!$usuario) {
             return new Response("Error: usuario no encontrado.");
         }
 
+        // Hashear y actualizar la contraseña
         $hashedPassword = $passwordHasher->hashPassword($usuario, $newPass);
-		$usuario->setPassword($hashedPassword);
-        $usuario->setResetToken(null); // Eliminar el código
+        $usuario->setPassword($hashedPassword);
+
         $entityManager->persist($usuario);
         $entityManager->flush();
-		return new Response("Contraseña actualizada con éxito.");
-	}
+
+        // Limpiar la sesión después de cambiar la contraseña
+        $session = $request->getSession();
+        $session->remove('codigo_recuperacion');
+        $session->remove('email_recuperacion');
+
+        return new Response("Contraseña actualizada con éxito.");
+    }
+
 
     //controlador para verificar el codigo
-    #[Route('/verificarCodigo', name:'verificarCodigo')]	
-	public function verificarCodigo(Request $request, EntityManagerInterface $entityManager)
-	{
-	
-        $correo = $request->request->get('email');
+    #[Route('/verificarCodigo', name:'verificarCodigo')]
+    public function verificarCodigo(Request $request)
+    {
         $codigoIngresado = $request->request->get('codigo');
+        $session = $request->getSession();
+        $codigoGuardado = $session->get('codigo_recuperacion');
+        $correoGuardado = $session->get('email_recuperacion');
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
-
-        if (!$usuario || $usuario->getResetToken() != $codigoIngresado) {
+        if (!$codigoGuardado || $codigoIngresado != $codigoGuardado) {
             return new Response("Código incorrecto. Inténtalo de nuevo.");
         }
 
-        // redirigir a la plantilla para que pueda cambiar la contraseña
-        return $this->redirectToRoute('cambiarContraseña', ['email' => $correo]);
+        // Redirigir a la vista de cambio de contraseña
+        return $this->redirectToRoute('cambiarContraseña', ['email' => $correoGuardado]);
+    }
 
-	}
 
     //controlador para mostrar las publicaciones en la pagina de inicio
     #[Route('inicio', name: 'inicio')]

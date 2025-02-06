@@ -1,29 +1,39 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Slyce</title>
-    </head>
-    <body>	
-     
-        <h1>Login</h1>
-    	<form action="{{ path('login') }}" method="post" id="login-form">    
-			Usuario
-			<input type="text" id="username" name="_username" />
-             <br>
-			Clave
-           
-			<input type="password" id="password" name="_password" />
-       
-            <p>¿No tienes cuenta? <a href="{{ path('registrarse') }}">Regístrate</a></p>
-            
-            <p>¿Has olvidado la contraseña? <a href="{{ path('cambioContraseña') }}">Recupérala</a></p>  
-    	
-			<button type="submit">login</button>
-		</form>
-        {% if error %}
-        <p style="color: red;">Credenciales incorrectas</p>
-    {% endif %}
-     <script src="{{ asset('js/validarLogin.js') }}"></script>
-    </body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Slyce</title>
+    <link rel="icon" type="image/x-icon" href="assets/letter-s.png">
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h1>Slyce</h1>
+            <form action="{{ path('login') }}" method="post" id="login-form">
+                <div class="input-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" name="_username" placeholder="Introduce tu usuario" required />
+                </div>
+                <div class="input-group">
+                    <label for="password">Clave</label>
+                    <input type="password" id="password" name="_password" placeholder="Introduce tu contraseña " required />
+                </div>
+                
+                <button type="submit" class="btn-login">Iniciar sesión</button>
+
+                <div class="links">
+                    <p><a href="{{ path('registrarse') }}">¿No tienes cuenta? Regístrate</a></p>
+                    <p><a href="{{ path('cambioContraseña') }}">¿Has olvidado la contraseña? Recupérala</a></p>
+                </div>
+                
+                {% if error %}
+                <p class="error-message">Credenciales incorrectas</p>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    <script src="{{ asset('js/validarLogin.js') }}"></script>
+</body>
 </html>

@@ -160,6 +160,42 @@ public function enviarCodigo(Request $request, MailerInterface $mailer)
             return new JsonResponse(['error' => 'Error al enviar el código: ' . $e->getMessage()], 500);
         }
     }
+    #[Route('/cambioContraseña', name: 'cambioContraseña')]
+    public function cambioContraseña()
+    {
+        return $this->render('recuperarContraseña.html.twig');
+    }
+    #[Route('/cambiarContraseña', name: 'cambiarContraseña', methods: ['POST'])]
+        public function cambiarContraseña(Request $request, UserPasswordHasherInterface $passwordHasher)
+        {
+            $jsonContent = $request->getContent();
+            error_log("JSON recibido: " . $jsonContent);
+        
+            // Intentar decodificar el JSON
+            $data = json_decode($jsonContent, true);
+            $email = trim($data['email']);
+            $password = $data['newPassword'];
+            error_log("Datos recibidos: " . print_r($data, true));
+        
+            // Buscar el usuario en la base de datos
+            $usuario = $this->entityManager->getRepository(Usuario::class)->findOneBy(["email" => $email]);
+        
+            if ($usuario) {
+                // Hash de la contraseña
+                $hashedPassword = $passwordHasher->hashPassword($usuario, $password);
+                $usuario->setPassword($hashedPassword);
+        
+                // Guardar la nueva contraseña en la base de datos
+                $this->entityManager->persist($usuario);
+                $this->entityManager->flush();
+        
+                return new JsonResponse(['success' => 'Contraseña cambiada con éxito.']);
+            } else {
+                return new JsonResponse(['error' => 'El correo no está registrado.'], 400);
+            }
+        }
+    
+
     
 
     // //controlador para mostrar las publicaciones en la pagina de inicio

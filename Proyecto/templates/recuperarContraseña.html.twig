@@ -5,36 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar Contraseña</title>
     
-    <style>
-        #codigoContainer, #passwordContainer {
-            display: none;
-        }
-    </style>
+   
 </head>
 <body>
-    <h2>Recuperar Contraseña</h2>
 
+    <div id="contenedor">
     <!-- Campos ocultos para las rutas -->
     <input type="hidden" id="rutaVerificarCorreo" value="{{ path('verificarCorreo') }}">
     <input type="hidden" id="rutaVerificarCodigo" value="{{ path('enviarCodigo') }}">
-    {# <input type="hidden" id="rutaCambiarContraseña" value="{{ path('cambiarContraseña') }}"> #} 
+    <input type="hidden" id="rutaCambiarContraseña" value="{{ path('cambiarContraseña') }}">  
 
-    <!-- Paso 1: Introducir Email -->
+   
     <div id="emailContainer">
+    <h3>Introduce tu email para recuperar tu contraseña</h3>
         <input type="email" id="email" placeholder="Introduce tu email">
         <input type="button" value="Enviar Código" id="btnEnviarCodigo">
     </div>
 
-    <!-- Paso 2: Ingresar Código -->
-    <div id="codigoContainer">
-        <input type="text" id="codigo" placeholder="Introduce el código">
-        <input type="button" value="Verificar Código" id="btnVerificarCodigo">
-    </div>
-
-    <!-- Paso 3: Cambiar Contraseña -->
-    <div id="passwordContainer">
-        <input type="password" id="nuevaContraseña" placeholder="Nueva contraseña">
-        <input type="button" value="Cambiar Contraseña" id="btnCambiarContraseña">
+ 
     </div>
     <script src="{{ asset('js/cambiaContra.js') }}"></script>
 </body>

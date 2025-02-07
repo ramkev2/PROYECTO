@@ -1,37 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Registrarse</title>
-      
+    <title>Slyce - Registrarse</title>
+    <link rel="icon" type="image/x-icon" href="assets/letter-s.png">
+    {# <link rel="stylesheet" href="estilos.css"> #}
 </head>
 <body>
     <h1>Registro</h1>
     <form method="post" action="{{ path('registrarse') }}" id="registro-form">
-        <label for="nombre">Nombre: </label>
+        <label for="nombre"></label>
         <input type="hidden" id="check_usuario_url" value="{{ path('check-usuario') }}">
         <input type="hidden" id="registrarse" value="{{ path('registrarse') }}">
-        <input type="text" id="nombre" name="nombre" >
+        <input type="text" id="nombre" name="nombre" placeholder="Nombre">
 
         <br><br>
 
-        <label for="apellido">Apellidos: </label>
-        <input type="text" id="apellido" name="apellido" >
+        <label for="apellido"></label>
+        <input type="text" id="apellido" name="apellido" placeholder="Apellidos" required>
         <br><br>
 
-        <label for="email">Email: </label>
-        <input type="text" id="email" name="email" >
+        <label for="email"></label>
+        <input type="text" id="email" name="email" placeholder="Email">
         <br><br>
 
-        <label for="usuario">Usuario: </label>
-        <input type="text" id="usuario" name="usuario" >
+        <label for="usuario"></label>
+        <input type="text" id="usuario" name="usuario" placeholder="Usuario">
         <br><br>
 
-        <label for="clave">Contraseña: </label>
-        <input type="password" id="clave" name="clave" >
+        <label for="clave"></label>
+        <input type="password" id="clave" name="clave" placeholder="Contraseña">
         <br><br>
 
-        <label for="edad">Edad: </label>
-        <input type="number" id="edad" name="edad" >
+        <label for="edad"></label>
+        <input type="number" id="edad" name="edad" placeholder="Edad">
         <br><br>
 
         <button type="submit">Registrarse</button>

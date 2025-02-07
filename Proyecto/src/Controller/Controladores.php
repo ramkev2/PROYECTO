@@ -35,6 +35,10 @@ class Controladores extends AbstractController
 	#[Route('/login', name:'login')]
     public function index(AuthenticationUtils $authenticationUtils){  
        
+        if ($this->getUser()) {
+            dump($this->getUser());
+            return $this->redirectToRoute('inicio');
+        }
        // Comprueba si hubo algún error
          $error = $authenticationUtils->getLastAuthenticationError();
 
@@ -43,6 +47,7 @@ class Controladores extends AbstractController
 
         // Renderizar el formulario de login
         return $this->render('login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
+
     } 
    
        
@@ -112,7 +117,7 @@ class Controladores extends AbstractController
 	
 	#[Route('/logout', name:'logout')]
     public function logout(){    
-        return new Response();
+        return $this->redirectToRoute('login');
     }   
   
 
@@ -134,7 +139,7 @@ class Controladores extends AbstractController
             return new Response("Correo no encontrado.");
         }
 
-        // Generar código aleatorio de 6 dígitos
+       
         $codigo = random_int(100000, 999999);
 
         // Guardar el código en la sesión
@@ -142,7 +147,6 @@ class Controladores extends AbstractController
         $session->set('codigo_recuperacion', $codigo);
         $session->set('email_recuperacion', $correo);
 
-        // Enviar el código por correo
         $email = (new Email())
             ->from('noreply@Slyce.com')
             ->to($correo)
@@ -202,18 +206,17 @@ class Controladores extends AbstractController
 
 
     //controlador para mostrar las publicaciones en la pagina de inicio
-    #[Route('inicio', name: 'inicio')]
-    public function inicio(EntityMangerInteface $entityManager){
+    #[Route('/inicio', name: 'inicio')]
+    public function inicio(EntityManagerInterface $entityManager){
        
         // Comprobamos si el usuario al menos se ha logueado
 		$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
        
         $publicaciones = $entityManager->getRepository(Publicacion::class)->findAll();
-        return $this->render('home.html.twig', [publicaciones => $publicaciones]);
+        return $this->render('inicio.html.twig', [publicaciones => $publicaciones]);
     }
     
     #[Route('/busqueda', name: 'busqueda', methods: ['POST'])]
-
     public function busqueda(Request $request, EntityManagerInterface $entityManager){
         $busqueda = $request->request->get('busqueda');
 
@@ -237,6 +240,48 @@ class Controladores extends AbstractController
 
         }
         
+    }
+
+    //controlador para ver Mi perfil
+    #[Route('/miperfil', name: 'miperfil')]
+    public function miperfil(EntityManagerInterface $entityManager){
+       
+        // Comprobamos si el usuario al menos se ha logueado
+		$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+       
+        return $this->render('miPerfil.html.twig');
+    }
+
+    //controlador para subir fotos
+    #[Route('/cambiarFotoPerfil', name: 'cambiarFotoPerfil')]
+    public function cambiarFotoPerfil(Requeste $request, EntityManagerInterface $entityManager){
+       
+        $usuario = $this->getUser(); 
+
+        $fotoPerfil = $request->files->get('foto_perfil');
+
+       if ($fotoPerfil) {
+        // Validar el archivo (puedes validar el tipo de archivo o el tamaño)
+        $filename = uniqid() . '.' . $fotoPerfil->guessExtension();
+
+        try {
+            // Mover el archivo al directorio donde guardarás las fotos
+                $fotoPerfil->move(
+                $this->getParameter('fotos_perfil_directory'), // Esto debes definirlo en config/services.yaml
+                $filename
+            );
+        } catch (FileException $e) {
+
+            return $this->render('error.html.twig', ['error' => 'Error al subir la foto']);
+        }
+
+        // guardo la ruta de la imagen en el perfil del usuario
+        $usuario->setFotoPerfil($filename);
+
+        $entityManager->persist($usuario);
+        $entityManager->flush();
+    }
+        return $this->redirectToRoute('miPerfil');
     }
 }
 

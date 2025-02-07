@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mi perfil</title>
+      
+</head>
+<body>
+    <h1>{{ app.user.usuario }}</h1>
+    <button>Editar perfil</button>
+    {{ app.user.nombre }} {{ app.user.apellido }}
+    
+        <form action="{{ path('cambiarFotoPerfil') }}" method="POST" enctype="multipart/form-data">
+        <label for="fotoPerfil">Selecciona una foto de perfil:</label>
+        <input type="file" name="foto_perfil" id="fotoPerfil" required />
+        <button type="submit">Subir foto</button>
+    </form>
+
+    <img src="{{ asset('uploads/fotos_perfil/' ~ app.user.fotoPerfil) }}" alt="Foto de perfil"/>
+</body>
+</html>

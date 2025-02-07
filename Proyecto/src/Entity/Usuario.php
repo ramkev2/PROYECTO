@@ -36,8 +36,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer')]
     private int $rol;
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $resetToken = null;
+    
 
     public function getId(): int
     {
@@ -134,13 +133,5 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
         // Método requerido por UserInterface
     }
 
-    public function getResetToken(): ?string
-    {
-        return $this->resetToken;
-    }
-
-    public function setResetToken(?string $resetToken): void
-    {
-        $this->resetToken = $resetToken;
-    }
+   
 }

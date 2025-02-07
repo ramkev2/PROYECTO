@@ -114,100 +114,146 @@ class Controladores extends AbstractController
     public function logout(){    
         return new Response();
     }   
-  
+    #[Route('/cambioContra', name: 'cambioContra')]
+    public function cambioContraseña()
+    {
+        return $this->render('recuperarContraseña.html.twig');
+
+    }
+
+    #[Route('/verificarCorreo', name: 'verificarCorreo', methods: ['POST'])]
+    public function verificarCorreo(Request $request, EntityManagerInterface $entityManager)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $email = trim($data["email"]);
+
+        // Buscar el usuario en la base de datos
+        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(["email" => $email]);
+
+        if ($usuario) {
+            return new JsonResponse(["success" => "Correo verificado."],200);
+        } else {
+            return new JsonResponse(["error" => "El correo no está registrado."], 400);
+        }
+    }
+    #[Route('/enviarCodigo', name: 'enviarCodigo')]
+public function enviarCodigo(Request $request, MailerInterface $mailer)
+{
+    $jsonContent = $request->getContent();
+    error_log("JSON recibido: " . $jsonContent);
+
+    // Intentar decodificar el JSON
+    $data = json_decode($jsonContent, true);
+        $email = trim($data['email']);
+        $codigo = $data['codigo'];
+        error_log("Datos recibidos: " . print_r($data, true));
+
+        // Crear el correo a enviar
+        $emailMessage = (new Email())
+            ->from('tu-correo@example.com')  // Remitente
+            ->to($email)                      // Destinatario
+            ->subject('Código de verificación')
+            ->text('Tu código de verificación es: ' . $codigo);
+
+        try {
+            // Intentar enviar el correo
+            $mailer->send($emailMessage);
+            return new JsonResponse(['success' => 'Código enviado con éxito.']);
+        } catch (\Exception $e) {
+            // Si ocurre un error en el envío del correo
+            return new JsonResponse(['error' => 'Error al enviar el código: ' . $e->getMessage()], 500);
+        }
+    }
+
 
  
 
     //configurar el correo para que envie el mensaje
-    #[Route('/correoRecuperacion', name:'correoRecuperacion')]
-    public function correoRecuperacion(
-        Request $request,
-        EntityManagerInterface $entityManager,
-        MailerInterface $mailer
-    ) {
-        $correo = $request->request->get('email');
-    
-        if (empty($correo)) {
-            return new Response("Por favor, introduce tu correo.");
-        }
-    
+    // #[Route('/correoRecuperacion', name:'correoRecuperacion')]
+    // public function correoRecuperacion(
+    //     Request $request,
+    //     EntityManagerInterface $entityManager,
+    //     MailerInterface $mailer
+    // ) {
+    //     $correo = $request->request->get('email');
        
-        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
+    //     $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
     
-        if (!$usuario) {
-            return new Response("Correo no encontrado.");
-        }
+    //     if (!$usuario) {
+    //         return new Response("Correo no encontrado.");
+    //     }
     
-        // esto genera un codigo aleatorio de 6 digitos
-        $codigo = random_int(100000, 999999);
-        $usuario->setResetToken($codigo);
-        $entityManager->persist($usuario);
-        $entityManager->flush();
+    //     // esto genera un codigo aleatorio de 6 digitos
+    //     $codigo = random_int(100000, 999999);
+    //     $usuario->setResetToken($codigo);
+    //     $entityManager->persist($usuario);
+    //     $entityManager->flush();
     
-        // Enviar correo con el código
-        $email = (new Email())
-            ->from('noreply@Slyce.com')
-            ->to($correo)
-            ->subject('Código de Recuperación de Contraseña')
-            ->text("Tu código de recuperación es: $codigo");
+    //     // Enviar correo con el código
+    //     $email = (new Email())
+    //         ->from('noreply@Slyce.com')
+    //         ->to($correo)
+    //         ->subject('Código de Recuperación de Contraseña')
+    //         ->text("Tu código de recuperación es: $codigo");
     
-        $mailer->send($email);
+    //     $mailer->send($email);
     
-        return $this->redirectToRoute('recuperarContraseña', [
-            'mostrar' => true,
-            'email' => $correo
-        ]);
-    }
+    //     return $this->redirectToRoute('recuperarContraseña', [
+    //         'mostrar' => true,
+    //         'email' => $correo
+    //     ]);
+    // }
     
     //controlador para cambiar la contraseña
-    #[Route('/cambioContraseña', name:'cambioContraseña')]	
-	public function cambioContraseña(EntityManagerInterface $entityManager,Request $request,  UserPasswordHasherInterface $passwordHasher)
-	{
-		$correo = $request->request->get('email');
-		$newPass = $request->request->get('nuevaContra');
-        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
+    // #[Route('/cambioContraseña', name:'cambioContraseña')]	
+	// public function cambioContraseña(EntityManagerInterface $entityManager,Request $request,  UserPasswordHasherInterface $passwordHasher)
+	// {
+	// 	$correo = $request->request->get('email');
+	// 	$newPass = $request->request->get('nuevaContra');
+    //     $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
 
-        if (!$usuario) {
-            return new Response("Error: usuario no encontrado.");
-        }
+    //     if (!$usuario) {
+    //         return new Response("Error: usuario no encontrado.");
+    //     }
 
-        $hashedPassword = $passwordHasher->hashPassword($usuario, $newPass);
-		$usuario->setPassword($hashedPassword);
-        $usuario->setResetToken(null); // Eliminar el código
-        $entityManager->persist($usuario);
-        $entityManager->flush();
-		return new Response("Contraseña actualizada con éxito.");
-	}
+    //     $hashedPassword = $passwordHasher->hashPassword($usuario, $newPass);
+	// 	$usuario->setPassword($hashedPassword);
+    //     $usuario->setResetToken(null); // Eliminar el código
+    //     $entityManager->persist($usuario);
+    //     $entityManager->flush();
+	// 	return new Response("Contraseña actualizada con éxito.");
+	// }
 
     //controlador para verificar el codigo
-    #[Route('/verificarCodigo', name:'verificarCodigo')]	
-	public function verificarCodigo(Request $request, EntityManagerInterface $entityManager)
-	{
+    // #[Route('/verificarCodigo', name:'verificarCodigo')]	
+	// public function verificarCodigo(Request $request, EntityManagerInterface $entityManager)
+	// {
 	
-        $correo = $request->request->get('email');
-        $codigoIngresado = $request->request->get('codigo');
+    //     $correo = $request->request->get('email');
+    //     $codigoIngresado = $request->request->get('codigo');
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
+    //     $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
 
-        if (!$usuario || $usuario->getResetToken() != $codigoIngresado) {
-            return new Response("Código incorrecto. Inténtalo de nuevo.");
-        }
+    //     if (!$usuario || $usuario->getResetToken() != $codigoIngresado) {
+    //         return new Response("Código incorrecto. Inténtalo de nuevo.");
+    //     }
 
-        // redirigir a la plantilla para que pueda cambiar la contraseña
-        return $this->redirectToRoute('cambiarContraseña', ['email' => $correo]);
+    //     // redirigir a la plantilla para que pueda cambiar la contraseña
+    //     return $this->redirectToRoute('cambiarContraseña', ['email' => $correo]);
 
-	}
+	// }
 
-    //controlador para mostrar las publicaciones en la pagina de inicio
-    #[Route('inicio', name: 'inicio')]
-    public function inicio(EntityMangerInteface $entityManager){
+    // //controlador para mostrar las publicaciones en la pagina de inicio
+    // #[Route('inicio', name: 'inicio')]
+    // public function inicio(EntityMangerInteface $entityManager){
        
-        // Comprobamos si el usuario al menos se ha logueado
-		$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    //     // Comprobamos si el usuario al menos se ha logueado
+	// 	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
        
-        $publicaciones = $entityManager->getRepository(Publicacion::class)->findAll();
-        return $this->render('home.html.twig', [publicaciones => $publicaciones]);
-    }
+    //     $publicaciones = $entityManager->getRepository(Publicacion::class)->findAll();
+    //     return $this->render('home.html.twig', [publicaciones => $publicaciones]);
+    // }
     
     #[Route('/busqueda', name: 'busqueda', methods: ['POST'])]
 
@@ -235,8 +281,8 @@ class Controladores extends AbstractController
         }
         
     }
-}
 
+}
 
     
 

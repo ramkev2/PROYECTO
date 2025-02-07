@@ -36,19 +36,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer')]
     private int $rol;
 
-    private $fotoPerfil;
-
-    public function getFotoPerfil(): string
-    {
-        return $this->fotoPerfil;
-    }
-
-    public function setFotoPerfil(string $fotoPerfil): self
-    {
-        $this->fotoPerfil = $fotoPerfil;
-        return $this;
-    }
-
+    
 
     public function getId(): int
     {
@@ -145,5 +133,5 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
         // Método requerido por UserInterface
     }
 
-    
+   
 }

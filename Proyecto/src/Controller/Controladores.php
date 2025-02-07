@@ -35,10 +35,6 @@ class Controladores extends AbstractController
 	#[Route('/login', name:'login')]
     public function index(AuthenticationUtils $authenticationUtils){  
        
-        if ($this->getUser()) {
-            dump($this->getUser());
-            return $this->redirectToRoute('inicio');
-        }
        // Comprueba si hubo algún error
          $error = $authenticationUtils->getLastAuthenticationError();
 
@@ -47,7 +43,6 @@ class Controladores extends AbstractController
 
         // Renderizar el formulario de login
         return $this->render('login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
-
     } 
    
        
@@ -117,106 +112,69 @@ class Controladores extends AbstractController
 	
 	#[Route('/logout', name:'logout')]
     public function logout(){    
-        return $this->redirectToRoute('login');
+        return new Response();
     }   
-  
-
- 
-
-    //configurar el correo para que envie el mensaje
-    #[Route('/correoRecuperacion', name:'correoRecuperacion')]
-    public function correoRecuperacion(Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer)
-    {
-        $correo = $request->request->get('email');
-
-        if (empty($correo)) {
-            return new Response("Por favor, introduce tu correo.");
-        }
-
-        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
-
-        if (!$usuario) {
-            return new Response("Correo no encontrado.");
-        }
-
-       
-        $codigo = random_int(100000, 999999);
-
-        // Guardar el código en la sesión
-        $session = $request->getSession();
-        $session->set('codigo_recuperacion', $codigo);
-        $session->set('email_recuperacion', $correo);
-
-        $email = (new Email())
-            ->from('noreply@Slyce.com')
-            ->to($correo)
-            ->subject('Código de Recuperación de Contraseña')
-            ->text("Tu código de recuperación es: $codigo");
-
-        $mailer->send($email);
-
-        return $this->redirectToRoute('recuperarContraseña', ['mostrar' => true]);
-    }
-
     
-    //controlador para cambiar la contraseña
-    #[Route('/cambioContraseña', name:'cambioContraseña')]
-    public function cambioContraseña(EntityManagerInterface $entityManager, Request $request, UserPasswordHasherInterface $passwordHasher)
+
+    #[Route('/verificarCorreo', name: 'verificarCorreo', methods: ['POST'])]
+    public function verificarCorreo(Request $request, EntityManagerInterface $entityManager)
     {
-        $correo = $request->request->get('email');
-        $newPass = $request->request->get('nuevaContra');
-        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $correo]);
+        $data = json_decode($request->getContent(), true);
 
-        if (!$usuario) {
-            return new Response("Error: usuario no encontrado.");
+        $email = trim($data["email"]);
+
+        // Buscar el usuario en la base de datos
+        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(["email" => $email]);
+
+        if ($usuario) {
+            return new JsonResponse(["success" => "Correo verificado."],200);
+        } else {
+            return new JsonResponse(["error" => "El correo no está registrado."], 400);
         }
-
-        // Hashear y actualizar la contraseña
-        $hashedPassword = $passwordHasher->hashPassword($usuario, $newPass);
-        $usuario->setPassword($hashedPassword);
-
-        $entityManager->persist($usuario);
-        $entityManager->flush();
-
-        // Limpiar la sesión después de cambiar la contraseña
-        $session = $request->getSession();
-        $session->remove('codigo_recuperacion');
-        $session->remove('email_recuperacion');
-
-        return new Response("Contraseña actualizada con éxito.");
     }
+    #[Route('/enviarCodigo', name: 'enviarCodigo')]
+public function enviarCodigo(Request $request, MailerInterface $mailer)
+{
+    $jsonContent = $request->getContent();
+    error_log("JSON recibido: " . $jsonContent);
 
+    // Intentar decodificar el JSON
+    $data = json_decode($jsonContent, true);
+        $email = trim($data['email']);
+        $codigo = $data['codigo'];
+        error_log("Datos recibidos: " . print_r($data, true));
 
-    //controlador para verificar el codigo
-    #[Route('/verificarCodigo', name:'verificarCodigo')]
-    public function verificarCodigo(Request $request)
-    {
-        $codigoIngresado = $request->request->get('codigo');
-        $session = $request->getSession();
-        $codigoGuardado = $session->get('codigo_recuperacion');
-        $correoGuardado = $session->get('email_recuperacion');
+        // Crear el correo a enviar
+        $emailMessage = (new Email())
+            ->from('noreply@Slyce.com')  
+            ->to($email)                     
+            ->subject('Código de verificación')
+            ->text('Tu código de verificación es: ' . $codigo);
 
-        if (!$codigoGuardado || $codigoIngresado != $codigoGuardado) {
-            return new Response("Código incorrecto. Inténtalo de nuevo.");
+        try {
+            // Intentar enviar el correo
+            $mailer->send($emailMessage);
+            return new JsonResponse(['success' => 'Código enviado con éxito.']);
+        } catch (\Exception $e) {
+            // Si ocurre un error en el envío del correo
+            return new JsonResponse(['error' => 'Error al enviar el código: ' . $e->getMessage()], 500);
         }
-
-        // Redirigir a la vista de cambio de contraseña
-        return $this->redirectToRoute('cambiarContraseña', ['email' => $correoGuardado]);
     }
+    
 
-
-    //controlador para mostrar las publicaciones en la pagina de inicio
-    #[Route('/inicio', name: 'inicio')]
-    public function inicio(EntityManagerInterface $entityManager){
+    // //controlador para mostrar las publicaciones en la pagina de inicio
+    // #[Route('inicio', name: 'inicio')]
+    // public function inicio(EntityMangerInteface $entityManager){
        
-        // Comprobamos si el usuario al menos se ha logueado
-		$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    //     // Comprobamos si el usuario al menos se ha logueado
+	// 	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
        
-        $publicaciones = $entityManager->getRepository(Publicacion::class)->findAll();
-        return $this->render('inicio.html.twig', [publicaciones => $publicaciones]);
-    }
+    //     $publicaciones = $entityManager->getRepository(Publicacion::class)->findAll();
+    //     return $this->render('home.html.twig', [publicaciones => $publicaciones]);
+    // }
     
     #[Route('/busqueda', name: 'busqueda', methods: ['POST'])]
+
     public function busqueda(Request $request, EntityManagerInterface $entityManager){
         $busqueda = $request->request->get('busqueda');
 
@@ -242,49 +200,7 @@ class Controladores extends AbstractController
         
     }
 
-    //controlador para ver Mi perfil
-    #[Route('/miperfil', name: 'miperfil')]
-    public function miperfil(EntityManagerInterface $entityManager){
-       
-        // Comprobamos si el usuario al menos se ha logueado
-		$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-       
-        return $this->render('miPerfil.html.twig');
-    }
-
-    //controlador para subir fotos
-    #[Route('/cambiarFotoPerfil', name: 'cambiarFotoPerfil')]
-    public function cambiarFotoPerfil(Requeste $request, EntityManagerInterface $entityManager){
-       
-        $usuario = $this->getUser(); 
-
-        $fotoPerfil = $request->files->get('foto_perfil');
-
-       if ($fotoPerfil) {
-        // Validar el archivo (puedes validar el tipo de archivo o el tamaño)
-        $filename = uniqid() . '.' . $fotoPerfil->guessExtension();
-
-        try {
-            // Mover el archivo al directorio donde guardarás las fotos
-                $fotoPerfil->move(
-                $this->getParameter('fotos_perfil_directory'), // Esto debes definirlo en config/services.yaml
-                $filename
-            );
-        } catch (FileException $e) {
-
-            return $this->render('error.html.twig', ['error' => 'Error al subir la foto']);
-        }
-
-        // guardo la ruta de la imagen en el perfil del usuario
-        $usuario->setFotoPerfil($filename);
-
-        $entityManager->persist($usuario);
-        $entityManager->flush();
-    }
-        return $this->redirectToRoute('miPerfil');
-    }
 }
-
 
     
 

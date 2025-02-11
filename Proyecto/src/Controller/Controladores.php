@@ -232,10 +232,37 @@ public function enviarCodigo(Request $request, MailerInterface $mailer)
 
         return $this->render('busqueda.html.twig', ['usuarios' => $usuarios]);
 
+<<<<<<< Updated upstream
         }
         
     }
 
+=======
+    //verificar que el correo exista
+    #[Route("/verificarCorreo", name:'verificarCorreo')]
+    public function verificarCorreo(Request $request){
+        $data = json_decode($request->getContent(), true);
+        $email = $data['email'] ?? null;
+    
+        if (!$email) {
+            return new JsonResponse(['error' => 'Email no proporcionado'], 400);
+        }
+    
+        $usuario = $this->usuarioRepository->findOneBy(['email' => $email]);
+    
+        if (!$usuario) {
+            return new JsonResponse(['error' => 'El correo no está registrado'], 400);
+        }
+    
+        return new JsonResponse(['success' => 'Correo verificado correctamente']);
+    }
+    
+    
+
+
+
+  
+>>>>>>> Stashed changes
 }
 
     

@@ -132,80 +132,39 @@ class Controladores extends AbstractController
             return new JsonResponse(["error" => "El correo no está registrado."], 400);
         }
     }
-        #[Route('/enviarCodigo', name: 'enviarCodigo')]
-        public function enviarCodigo(Request $request, MailerInterface $mailer)
-        {
-            $jsonContent = $request->getContent();
-            error_log("JSON recibido: " . $jsonContent);
+    #[Route('/enviarCodigo', name: 'enviarCodigo')]
+public function enviarCodigo(Request $request, MailerInterface $mailer)
+{
+    $jsonContent = $request->getContent();
+    error_log("JSON recibido: " . $jsonContent);
 
-            // Intentar decodificar el JSON
-            $data = json_decode($jsonContent, true);
-                $email = trim($data['email']);
-                $codigo = $data['codigo'];
-                error_log("Datos recibidos: " . print_r($data, true));
+    // Intentar decodificar el JSON
+    $data = json_decode($jsonContent, true);
+        $email = trim($data['email']);
+        $codigo = $data['codigo'];
+        error_log("Datos recibidos: " . print_r($data, true));
 
-                // Crear el correo a enviar
-                $emailMessage = (new Email())
-                    ->from('noreply@Slyce.com')  
-                    ->to($email)                     
-                    ->subject('Código de verificación')
-                    ->text('Tu código de verificación es: ' . $codigo);
+        // Crear el correo a enviar
+        $emailMessage = (new Email())
+            ->from('noreply@Slyce.com')  
+            ->to($email)                     
+            ->subject('Código de verificación')
+            ->text('Tu código de verificación es: ' . $codigo);
 
-                try {
-                    // Intentar enviar el correo
-                    $mailer->send($emailMessage);
-                    return new JsonResponse(['success' => 'Código enviado con éxito.']);
-                } catch (\Exception $e) {
-                    // Si ocurre un error en el envío del correo
-                    return new JsonResponse(['error' => 'Error al enviar el código: ' . $e->getMessage()], 500);
-                }
+        try {
+            // Intentar enviar el correo
+            $mailer->send($emailMessage);
+            return new JsonResponse(['success' => 'Código enviado con éxito.']);
+        } catch (\Exception $e) {
+            // Si ocurre un error en el envío del correo
+            return new JsonResponse(['error' => 'Error al enviar el código: ' . $e->getMessage()], 500);
         }
-    
-
-    //controlador para mostrar las publicaciones en la pagina de inicio
-    #[Route('inicio', name: 'inicio')]
-    public function inicio(EntityMangerInteface $entityManager){
-       
-        // Comprobamos si el usuario al menos se ha logueado
-		$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-       
-        $publicaciones = $entityManager->getRepository(Publicacion::class)->findAll();
-        return $this->render('home.html.twig', [publicaciones => $publicaciones]);
     }
-    
-    #[Route('/busqueda', name: 'busqueda', methods: ['POST'])]
-
-    public function busqueda(Request $request, EntityManagerInterface $entityManager){
-        $busqueda = $request->request->get('busqueda');
-
-
-        if (!$busqueda) {
-            return $this->render('busqueda.html.twig', ['error'=> 'Introduce una busqueda']);
-
-        $usuario = $entityManager->getRepository(Usuario::class)
-        ->createQueryBuilder('b')
-        ->where('b.usuario LIKE :busqueda')
-        ->orWhere('b.nombre LIKE :busqueda')
-        ->setParameter('busqueda', '%$busqueda%')
-        ->getQuery()
-        ->getResult();
-
-        if (!$usarios) {
-            return $this->render('busqueda.html.twig', ['error'=> 'No se encontraron resultados']);
-        }
-
-        return $this->render('busqueda.html.twig', ['usuarios' => $usuarios]);
-
-        }
-        
-    }
-
     #[Route('/cambioContraseña', name: 'cambioContraseña')]
-        public function cambioContraseña()
-        {
-            return $this->render('recuperarContraseña.html.twig');
-        }
-
+    public function cambioContraseña()
+    {
+        return $this->render('recuperarContraseña.html.twig');
+    }
     #[Route('/cambiarContraseña', name: 'cambiarContraseña', methods: ['POST'])]
         public function cambiarContraseña(Request $request, UserPasswordHasherInterface $passwordHasher)
         {
@@ -235,65 +194,75 @@ class Controladores extends AbstractController
                 return new JsonResponse(['error' => 'El correo no está registrado.'], 400);
             }
         }
-
-    #[Route('/miperfil', name:'miperfil')]
-    public function miPerfil(){  
-       
-        return $this->render('miPerfil.html.twig');
-    } 
-
-    #[Route('/cambiarfotoperfil', name:'cambiarfotoperfil')]
-    public function cambiarfotoperfil(){  
-       
-        // src/Controller/PerfilController.php
-        $user = $this->getUser(); // Obtener el usuario autenticado
-        
-        // Si no hay usuario autenticado, redirigir al login
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        // Procesar el formulario de subida
-        if ($request->isMethod('POST')) {
-            $fotoPerfil = $request->files->get('foto_perfil'); // Obtener el archivo subido
-            
-            // Verificar si el archivo existe y es válido
-            if ($fotoPerfil && $fotoPerfil->isValid()) {
-                $originalFilename = pathinfo($fotoPerfil->getClientOriginalName(), PATHINFO_FILENAME);
-                $newFilename = uniqid() . '.' . $fotoPerfil->guessExtension();
-
-                // Intentar mover el archivo al directorio de fotos de perfil
-                try {
-                    $fotoPerfil->move(
-                        $this->getParameter('foto_perfil_directory'), // Directorio donde se guardan las fotos
-                        $newFilename
-                    );
-
-                    // Actualizar el nombre del archivo en la base de datos
-                    $user->setFotoPerfil($newFilename);
-                    $entityManager->persist($user);
-                    $entityManager->flush();
-
-                    $this->addFlash('success', 'Foto de perfil subida correctamente.');
-
-                } catch (FileException $e) {
-                    // Manejo de errores si ocurre un problema al mover el archivo
-                    $this->addFlash('error', 'Hubo un problema al subir la foto de perfil.');
-                }
-            } else {
-                $this->addFlash('error', 'La foto no es válida.');
-            }
-
-            // Redirigir a la página de perfil después de subir la foto
-            return $this->redirectToRoute('miPerfil');
-        }
-
-        // Si no es un POST, se renderiza la página con el formulario
-        return $this->render('miPerfil.html.twig');
-    }
+    
 
     
 
+    // //controlador para mostrar las publicaciones en la pagina de inicio
+    // #[Route('inicio', name: 'inicio')]
+    // public function inicio(EntityMangerInteface $entityManager){
+       
+    //     // Comprobamos si el usuario al menos se ha logueado
+	// 	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+       
+    //     $publicaciones = $entityManager->getRepository(Publicacion::class)->findAll();
+    //     return $this->render('home.html.twig', [publicaciones => $publicaciones]);
+    // }
+    
+    #[Route('/busqueda', name: 'busqueda', methods: ['POST'])]
+
+    public function busqueda(Request $request, EntityManagerInterface $entityManager){
+        $busqueda = $request->request->get('busqueda');
+
+
+        if (!$busqueda) {
+            return $this->render('busqueda.html.twig', ['error'=> 'Introduce una busqueda']);
+
+        $usuario = $entityManager->getRepository(Usuario::class)
+        ->createQueryBuilder('b')
+        ->where('b.usuario LIKE :busqueda')
+        ->orWhere('b.nombre LIKE :busqueda')
+        ->setParameter('busqueda', '%$busqueda%')
+        ->getQuery()
+        ->getResult();
+
+        if (!$usarios) {
+            return $this->render('busqueda.html.twig', ['error'=> 'No se encontraron resultados']);
+        }
+
+        return $this->render('busqueda.html.twig', ['usuarios' => $usuarios]);
+
+<<<<<<< Updated upstream
+        }
+        
+    }
+
+=======
+    //verificar que el correo exista
+    #[Route("/verificarCorreo", name:'verificarCorreo')]
+    public function verificarCorreo(Request $request){
+        $data = json_decode($request->getContent(), true);
+        $email = $data['email'] ?? null;
+    
+        if (!$email) {
+            return new JsonResponse(['error' => 'Email no proporcionado'], 400);
+        }
+    
+        $usuario = $this->usuarioRepository->findOneBy(['email' => $email]);
+    
+        if (!$usuario) {
+            return new JsonResponse(['error' => 'El correo no está registrado'], 400);
+        }
+    
+        return new JsonResponse(['success' => 'Correo verificado correctamente']);
+    }
+    
+    
+
+
+
+  
+>>>>>>> Stashed changes
 }
 
     

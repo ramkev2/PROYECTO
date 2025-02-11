@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     
-    console.log("Documento cargado");
+    
     const form = document.querySelector("#registro-form");
     const checkUsuarioUrl = document.querySelector("#check_usuario_url").value; 
     const mensajeElement = document.getElementById("mensaje");
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Validamos si los campos están vacíos
         if (nombre=="" || apellido==""  || email==""  || usuario==""  || clave=="" || edad=="" ) {
-            valid = false;
+            
             errorMessage="Por favor, completa todos los campos.";
             mostrarError(errorMessage);  // Mostramos el mensaje de error
             return;
@@ -63,18 +63,25 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Validar edad (por ejemplo, si es mayor a 14 años)
         if (isNaN(edad)||edad < 14) {
-            valid = false;
+            
             errorMessage = "Debes ser mayor de 14 años para registrarte.";
             mostrarError(errorMessage);
             return;
         }
         let regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/;  // Regex para validar el email
         if (!regex.test(email)) {
-            valid = false;
+           
             errorMessage = "Por favor, ingresa un correo electrónico válido.";
             mostrarError(errorMessage);
             return;
         }
+    regex = /^[A-Za-z\d]{8,}$/// validar la contraseña
+    if (!regex.test(clave)) {
+        errorMessage = "La contraseña debe cuplir los requisitos.";
+        mostrarError(errorMessage);
+        return;
+    }
+       
 
         const xhr = new XMLHttpRequest();
         xhr.open("POST", checkUsuarioUrl, true);

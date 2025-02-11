@@ -3,9 +3,10 @@
 <head>
     <title>Slyce - Registrarse</title>
     <link rel="icon" type="image/x-icon" href="assets/letter-s.png">
-    {# <link rel="stylesheet" href="estilos.css"> #}
+   <link rel="stylesheet" href="{{ asset('css/estilosRegistro.css') }}">
 </head>
 <body>
+<div class="container">
     <h1>Registro</h1>
     <form method="post" action="{{ path('registrarse') }}" id="registro-form">
         <label for="nombre"></label>
@@ -16,7 +17,7 @@
         <br><br>
 
         <label for="apellido"></label>
-        <input type="text" id="apellido" name="apellido" placeholder="Apellidos" required>
+        <input type="text" id="apellido" name="apellido" placeholder="Apellidos">
         <br><br>
 
         <label for="email"></label>
@@ -29,6 +30,7 @@
 
         <label for="clave"></label>
         <input type="password" id="clave" name="clave" placeholder="Contraseña">
+        <small>Debe contener al menos una mayúscula, una minúscula, un número y 8 caracteres.</small>
         <br><br>
 
         <label for="edad"></label>
@@ -39,6 +41,7 @@
     </form>
     <div id="mensaje"></div>
     <p>¿Ya tienes cuenta? <a href="{{ path('login') }}">Inicia sesión</a></p>
+</div>
     <script src="{{ asset('js/validaciones.js') }}"></script>
 </body>
 </html>

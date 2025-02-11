@@ -22,6 +22,9 @@ class Publicacion{
     #[ORM\Column(type:'string', name:'contenido')]
 	private $contenido;
 
+    #[ORM\Column(type: 'string', nullable: true)]
+    private string $imagen;
+
     #[ORM\Column(type:'integer', name:'usuario_id')]
 	private $usuario_id;
     #[ORM\ManyToOne(targetEntity: Usuario::class, inversedBy: 'publicaciones')]
@@ -70,6 +73,16 @@ class Publicacion{
     {
         $this->usuario = $usuario;
         return $this;
+    }
+
+    public function getImagen(): string
+    {
+        return $this->imagen;
+    }
+
+    public function setImagen(string $imagen): void
+    {
+        $this->imagen = $imagen;
     }
 }
 

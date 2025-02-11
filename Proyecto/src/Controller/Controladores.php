@@ -162,16 +162,16 @@ public function enviarCodigo(Request $request, MailerInterface $mailer)
     }
     
 
-    // //controlador para mostrar las publicaciones en la pagina de inicio
-    // #[Route('inicio', name: 'inicio')]
-    // public function inicio(EntityMangerInteface $entityManager){
+    //controlador para mostrar las publicaciones en la pagina de inicio
+     #[Route('inicio', name: 'inicio')]
+    public function inicio(EntityMangerInteface $entityManager){
        
-    //     // Comprobamos si el usuario al menos se ha logueado
-	// 	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+    // Comprobamos si el usuario al menos se ha logueado
+	 	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
        
-    //     $publicaciones = $entityManager->getRepository(Publicacion::class)->findAll();
-    //     return $this->render('home.html.twig', [publicaciones => $publicaciones]);
-    // }
+        $publicaciones = $entityManager->getRepository(Publicacion::class)->findAll();
+         return $this->render('home.html.twig', [publicaciones => $publicaciones]);
+     }
     
     #[Route('/busqueda', name: 'busqueda', methods: ['POST'])]
 

@@ -170,7 +170,7 @@ public function enviarCodigo(Request $request, MailerInterface $mailer)
 	 	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
        
         $publicaciones = $entityManager->getRepository(Publicacion::class)->findAll();
-         return $this->render('home.html.twig', [publicaciones => $publicaciones]);
+         return $this->render('inicio.html.twig', [publicaciones => $publicaciones]);
      }
     
     #[Route('/busqueda', name: 'busqueda', methods: ['POST'])]
